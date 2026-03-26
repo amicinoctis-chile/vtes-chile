@@ -1,0 +1,95 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const upcomingEvents = (await getCollection('events')).sort(
+  (a, b) => a.data.date.getTime() - b.data.date.getTime()
+);
+
+const latestPosts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+  .slice(0, 3);
+---
+
+<Layout title="Inicio" description="La comunidad chilena de Vampire: The Eternal Struggle — torneos, decks y noticias del juego de cartas del Mundo de Tinieblas.">
+
+  <!-- Hero -->
+  <section class="relative overflow-hidden py-24 lg:py-36">
+    <div class="absolute inset-0 bg-gradient-to-b from-blood-950/30 to-night-950 pointer-events-none" />
+    <div class="relative mx-auto max-w-4xl px-4 text-center">
+      <p class="text-blood-500 text-sm font-medium tracking-[0.3em] uppercase mb-4">
+        Mundo de Tinieblas
+      </p>
+      <h1 class="font-serif text-5xl lg:text-7xl font-bold text-night-50 leading-tight">
+        Vampire: The<br />
+        <span class="text-blood-500">Eternal Struggle</span>
+      </h1>
+      <p class="mt-6 text-xl text-night-300 max-w-2xl mx-auto">
+        La comunidad chilena del juego de cartas coleccionables más oscuro y estratégico.
+        Torneos, noticias y una comunidad apasionada en todo Chile.
+      </p>
+      <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+        <a
+          href="/torneos"
+          class="inline-flex items-center justify-center px-6 py-3 bg-blood-700 hover:bg-blood-600 text-night-50 font-semibold rounded-sm transition-colors"
+        >
+          Ver Torneos
+        </a>
+        <a
+          href="/comunidad"
+          class="inline-flex items-center justify-center px-6 py-3 border border-night-700 hover:border-night-500 text-night-200 font-semibold rounded-sm transition-colors"
+        >
+          Únete a la Comunidad
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Próximos eventos -->
+  {upcomingEvents.length > 0 && (
+    <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+      <h2 class="font-serif text-2xl font-bold text-night-100 mb-8">
+        Próximos Torneos
+      </h2>
+      <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {upcomingEvents.slice(0, 3).map((event) => (
+          <li class="border border-night-800 bg-night-900/50 p-5 rounded-sm hover:border-blood-800 transition-colors">
+            <time datetime={event.data.date.toISOString()} class="text-xs text-blood-500 font-medium tracking-wide uppercase">
+              {event.data.date.toLocaleDateString('es-CL', { dateStyle: 'long' })}
+            </time>
+            <h3 class="mt-2 text-night-100 font-semibold">{event.data.title}</h3>
+            <p class="mt-1 text-sm text-night-400">{event.data.city} — {event.data.format}</p>
+          </li>
+        ))}
+      </ul>
+      <a href="/torneos" class="mt-6 inline-block text-sm text-blood-500 hover:text-blood-400 transition-colors">
+        Ver todos los torneos →
+      </a>
+    </section>
+  )}
+
+  <!-- Últimas noticias -->
+  {latestPosts.length > 0 && (
+    <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-night-900">
+      <h2 class="font-serif text-2xl font-bold text-night-100 mb-8">
+        Últimas Noticias
+      </h2>
+      <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {latestPosts.map((post) => (
+          <li class="group">
+            <a href={`/blog/${post.id}`} class="block border border-night-800 bg-night-900/30 p-5 rounded-sm hover:border-blood-800 transition-colors">
+              <time datetime={post.data.pubDate.toISOString()} class="text-xs text-night-500">
+                {post.data.pubDate.toLocaleDateString('es-CL', { dateStyle: 'medium' })}
+              </time>
+              <h3 class="mt-2 text-night-100 font-semibold group-hover:text-blood-400 transition-colors">
+                {post.data.title}
+              </h3>
+              <p class="mt-2 text-sm text-night-400 line-clamp-2">{post.data.description}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+</Layout>
