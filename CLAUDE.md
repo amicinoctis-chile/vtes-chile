@@ -26,16 +26,21 @@ npm run cf:deploy    # deploy a Cloudflare Pages
 
 ```
 src/
-├── content.config.ts   # esquemas Zod de las Content Collections (blog, events, decks)
+├── assets/             # imágenes optimizadas por <Image> (e.g. DarkPack_Logo2.png)
+├── content.config.ts   # esquemas Zod de todas las Content Collections
 ├── env.d.ts            # referencias a tipos de Astro y @astrojs/cloudflare
 ├── middleware.ts       # CSP nonce + security headers, se ejecuta en cada request
 ├── types.d.ts          # App.Locals — expone cspNonce tipado al resto de la app
 ├── content/
 │   ├── blog/           # artículos de la comunidad (.md/.mdx)
+│   ├── decks/          # decks de referencia (.md/.mdx)
 │   ├── events/         # torneos y eventos (.md/.mdx)
-│   └── decks/          # decks de referencia (.md/.mdx)
+│   ├── leagues/        # ligas recurrentes (.md/.mdx)
+│   ├── sites/          # perfiles RRSS y comunidades (.md/.mdx)
+│   └── stores/         # tiendas donde se juega (.md/.mdx)
 ├── layouts/
-│   └── Layout.astro    # shell HTML global: nav, footer, fuentes, consume cspNonce
+│   ├── BaseLayout.astro  # layout principal: nav, footer, OG tags, Fonts API, CSP nonce
+│   └── Layout.astro      # layout legacy (sin usar en páginas nuevas)
 ├── pages/              # enrutado basado en archivos (Astro file-based routing)
 └── styles/
     └── global.css      # @import "tailwindcss" + paleta blood/night/gold con @theme {}
@@ -56,6 +61,13 @@ src/
    import { z } from 'astro/zod';
    import { glob } from 'astro/loaders';
    ```
+
+5. **Imágenes de contenido**: el campo `img` de cualquier colección almacena solo el nombre de archivo (ej: `"mi-imagen.jpg"`). Las imágenes van en `public/images/{colección}/` (ej: `public/images/events/grand-prix.jpg`). Para referenciarlas en templates: `src={`/images/events/${entry.data.img}`}`.
+
+6. **Fechas en frontmatter**: usar siempre formato ISO 8601.
+   - `pubDate`/`updatedDate` en `blog` y `decks`: `"2026-03-29T00:00:00Z"` (`z.iso.datetime()`)
+   - `date` en `events`: `"2026-04-26"` (`z.iso.date()`, sin hora)
+   - `hour` en `leagues`: `"19:30"` (`z.iso.time()`, formato HH:MM)
 
 ## Dependency Constraint
 
@@ -78,13 +90,16 @@ Los layouts consumen `Astro.locals.cspNonce` para exponerlo via `<meta name="csp
 
 ### Content Layer API (Astro 6)
 
-`src/content.config.ts` (nota: en Astro 6 el archivo está en `src/`, no en `src/content/`) define tres colecciones con `glob()` loader:
+`src/content.config.ts` (nota: en Astro 6 el archivo está en `src/`, no en `src/content/`) define seis colecciones con `glob()` loader. Cada colección carga desde su propio subdirectorio:
 
-| Colección | Directorio              | Campos clave                                            |
-|-----------|-------------------------|---------------------------------------------------------|
-| `blog`    | `src/content/blog/`     | `title`, `pubDate`, `draft` (filtrable), `tags`         |
-| `events`  | `src/content/events/`   | `date`, `city`, `format` (enum), `registrationUrl`      |
-| `decks`   | `src/content/decks/`    | `clan`, `discipline[]`, `format` (standard\|limited)    |
+| Colección | Directorio              | Campos clave                                                   |
+|-----------|-------------------------|----------------------------------------------------------------|
+| `blog`    | `src/content/blog/`     | `title`, `pubDate` (datetime), `draft` (filtrable), `tags`     |
+| `events`  | `src/content/events/`   | `date` (ISO date), `city`, `format`, `entryFee`, `rounds`      |
+| `leagues` | `src/content/leagues/`  | `hour` (HH:MM), `day`, `month`, `year`, `format`, `entryFee`   |
+| `stores`  | `src/content/stores/`   | `name`, `location`, `city`, `url`, `instagram`, `whatsapp`     |
+| `sites`   | `src/content/sites/`    | `name`, `platform` (enum 9 valores), `url`, `active`, `img`   |
+| `decks`   | `src/content/decks/`    | `clan[]`, `discipline[]`, `format` (standard\|v5), `pubDate`   |
 
 Para consultar contenido: `getCollection('blog', ({ data }) => !data.draft)`.
 
@@ -97,7 +112,7 @@ Paleta de colores personalizada disponible como clases de Tailwind:
 - `night-{50..950}` — grises azulados (fondos, texto)
 - `gold-{400,500,600}` — dorado (hover de navegación)
 
-Fuentes: `font-serif` → Cinzel (Google Fonts, títulos), `font-sans` → Inter (cuerpo).
+Fuentes: `font-serif` → `var(--font-cinzel)`, `font-sans` → `var(--font-inter)`. Las variables CSS son generadas por la Fonts API de Astro 6 (configurada en `astro.config.ts` bajo `fonts[]`). Las fuentes se descargan en build time y se sirven desde `'self'` sin depender de Google CDN en runtime.
 
 ### Cloudflare Adapter
 
