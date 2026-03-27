@@ -8,8 +8,8 @@ const blog = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    pubDate: z.coerce.date(),
-    updatedDate: z.coerce.date().optional(),
+    pubDate: z.iso.datetime(),
+    updatedDate: z.iso.datetime().optional(),
     author: z.string().default('Gabriel Walker'),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
@@ -23,13 +23,13 @@ const events = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    date: z.coerce.date(),
+    date: z.iso.date(),
     location: z.string(),
     city: z.string(),
     format: z.enum(['V5', 'standard', 'storyline', 'limited', 'casual']),
-    proxyesAllowes: z.enum(['si', 'no', 'tba']),
+    proxyesAllowed: z.enum(['si', 'no', 'tba']),
     rounds: z.number().gte(1),
-    entryFee: z.number().positive(),
+    entryFee: z.number().nonnegative(),
     organizer: z.string(),
     maxPlayers: z.number().int().positive().optional(),
     registrationUrl: z.url().optional(),
@@ -40,20 +40,20 @@ const events = defineCollection({
 
 /** Ligas */
 const leagues = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/events' }),
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/leagues' }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    hour: z.iso.time({ precision: -1 }),
+    hour: z.iso.time(),
     day: z.enum(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']),
-    month: number().gte(1).lte(12),
-    year: number().gte(2026),
+    month: z.number().int().gte(1).lte(12),
+    year: z.number().int().gte(2026),
     location: z.string(),
     city: z.string(),
     format: z.enum(['V5', 'standard', 'storyline', 'limited', 'casual']),
-    proxyesAllowes: z.enum(['si', 'no', 'tba']),
-    rounds: z.number().gte(1),
-    entryFee: z.number().positive(),
+    proxyesAllowed: z.enum(['si', 'no', 'tba']),
+    rounds: z.number().gte(1).default(1),
+    entryFee: z.number().nonnegative(),
     organizer: z.string(),
     maxPlayers: z.number().int().positive().optional(),
     registrationUrl: z.url().optional(),
@@ -63,20 +63,20 @@ const leagues = defineCollection({
 
 /** Tiendas */
 const stores = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/events' }),
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/stores' }),
   schema: z.object({
     name: z.string(),
     location: z.string(),
     city: z.string(),
     url: z.url().optional(),
     instagram: z.url().optional(),
-    whatsapp: z.url().optional(), //link to whatsapp group
+    whatsapp: z.url().optional(),
   }),
 });
 
 /** Sitios y comunidades (perfiles RRSS y creadores de contenido) */
 const sites = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/events' }),
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/sites' }),
   schema: z.object({
     name: z.string(),
     platform: z.enum([
@@ -88,6 +88,7 @@ const sites = defineCollection({
       "Facebook",
       "Twitch",
       "Web",
+      "Podcast"
     ]),
     url: z.url().optional(),
     description: z.string(),
@@ -108,7 +109,7 @@ const decks = defineCollection({
     discipline: z.array(z.string()).default([]),
     format: z.enum(['standard', 'v5']).default('standard'),
     url: z.url().optional(),
-    pubDate: z.coerce.date(),
+    pubDate: z.iso.datetime(),
     tags: z.array(z.string()).default([]),
     comments: z.string().optional(),
   }),
