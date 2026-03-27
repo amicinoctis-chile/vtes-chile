@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
+import { number } from 'astro:schema';
 
 /** Noticias y artículos de la comunidad */
 const blog = defineCollection({
@@ -10,10 +11,10 @@ const blog = defineCollection({
     description: z.string(),
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
-    author: z.string().default('Comunidad VTES Chile'),
+    author: z.string().default('Gabriel Walker'),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
-    heroImage: z.string().optional(),
+    img: z.string().optional(),
   }),
 });
 
@@ -26,11 +27,74 @@ const events = defineCollection({
     date: z.coerce.date(),
     location: z.string(),
     city: z.string(),
-    format: z.enum(['standard', 'storyline', 'limited', 'casual']),
+    format: z.enum(['V5', 'standard', 'storyline', 'limited', 'casual']),
+    proxyesAllowes: z.enum(['si', 'no', 'tba']),
+    rounds: z.number().gte(1),
+    entryFee: z.number().positive(),
     organizer: z.string(),
     maxPlayers: z.number().int().positive().optional(),
-    registrationUrl: z.string().url().optional(),
-    resultsUrl: z.string().url().optional(),
+    registrationUrl: z.url().optional(),
+    resultsUrl: z.url().optional(),
+    img: z.string().optional(),
+  }),
+});
+
+/** Ligas */
+const leagues = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/events' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    hour: z.iso.time({ precision: -1 }),
+    day: z.enum(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']),
+    month: number().gte(1).lte(12),
+    year: number().gte(2026),
+    location: z.string(),
+    city: z.string(),
+    format: z.enum(['V5', 'standard', 'storyline', 'limited', 'casual']),
+    proxyesAllowes: z.enum(['si', 'no', 'tba']),
+    rounds: z.number().gte(1),
+    entryFee: z.number().positive(),
+    organizer: z.string(),
+    maxPlayers: z.number().int().positive().optional(),
+    registrationUrl: z.url().optional(),
+    resultsUrl: z.url().optional(),
+  }),
+});
+
+/** Tiendas */
+const stores = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/events' }),
+  schema: z.object({
+    name: z.string(),
+    location: z.string(),
+    city: z.string(),
+    url: z.url().optional(),
+    instagram: z.url().optional(),
+    whatsapp: z.url().optional(), //link to whatsapp group
+  }),
+});
+
+/** Sitios y comunidades (perfiles RRSS y creadores de contenido) */
+const sites = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/events' }),
+  schema: z.object({
+    name: z.string(),
+    platform: z.enum([
+      "Instagram",
+      "YouTube",
+      "Discord",
+      "WhatsApp",
+      "X",
+      "Facebook",
+      "Twitch",
+      "Web",
+    ]),
+    url: z.url().optional(),
+    description: z.string(),
+    active: z.boolean().default(true),
+    img: z.string().optional(),
+    comments: z.string().optional(),
   }),
 });
 
@@ -41,12 +105,14 @@ const decks = defineCollection({
     title: z.string(),
     description: z.string(),
     author: z.string(),
-    clan: z.string(),
+    clan: z.array(z.string()).default([]),
     discipline: z.array(z.string()).default([]),
-    format: z.enum(['standard', 'limited']).default('standard'),
+    format: z.enum(['standard', 'v5']).default('standard'),
+    url: z.url().optional(),
     pubDate: z.coerce.date(),
     tags: z.array(z.string()).default([]),
+    comments: z.string().optional(),
   }),
 });
 
-export const collections = { blog, events, decks };
+export const collections = { blog, events, leagues, stores, sites, decks };
