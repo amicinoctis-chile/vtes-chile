@@ -18,6 +18,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const response = await next();
 
+  // Clonar la respuesta para obtener un objeto Headers mutable.
+  // next() puede devolver una respuesta con headers inmutables en Vite/Workers.
+  const mutableResponse = new Response(response.body, response);
+
   const csp = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}'`,
@@ -32,18 +36,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
     "upgrade-insecure-requests",
   ].join('; ');
 
-  response.headers.set('Content-Security-Policy', csp);
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set(
+  mutableResponse.headers.set('Content-Security-Policy', csp);
+  mutableResponse.headers.set('X-Content-Type-Options', 'nosniff');
+  mutableResponse.headers.set('X-Frame-Options', 'DENY');
+  mutableResponse.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  mutableResponse.headers.set(
     'Permissions-Policy',
     'camera=(), microphone=(), geolocation=()'
   );
-  response.headers.set(
+  mutableResponse.headers.set(
     'Strict-Transport-Security',
     'max-age=31536000; includeSubDomains'
   );
 
-  return response;
+  return mutableResponse;
 });
