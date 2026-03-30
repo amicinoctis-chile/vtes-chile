@@ -1,0 +1,207 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const formatParam = Astro.url.searchParams.get('formato') ?? '';
+const tipoParam = Astro.url.searchParams.get('tipo') ?? 'proximos';
+const paginaParam = parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10);
+const PER_PAGE = 9;
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const validFormats = ['V5', 'standard', 'storyline', 'limited', 'casual'] as const;
+type EventFormat = typeof validFormats[number];
+
+let allEvents = await getCollection('events');
+
+if (tipoParam === 'pasados') {
+  allEvents = allEvents.filter(e => new Date(e.data.date + 'T12:00:00') < today);
+  allEvents.sort((a, b) => b.data.date.localeCompare(a.data.date));
+} else {
+  allEvents = allEvents.filter(e => new Date(e.data.date + 'T12:00:00') >= today);
+  allEvents.sort((a, b) => a.data.date.localeCompare(b.data.date));
+}
+
+if (validFormats.includes(formatParam as EventFormat)) {
+  allEvents = allEvents.filter(e => e.data.format === formatParam);
+}
+
+const totalPages = Math.max(1, Math.ceil(allEvents.length / PER_PAGE));
+const page = Math.min(Math.max(1, paginaParam), totalPages);
+const events = allEvents.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+const hasActiveFilters = formatParam !== '' || tipoParam !== 'proximos';
+
+const formatCLP = (n: number) =>
+  n === 0 ? 'Gratuito' : n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
+
+const formatDate = (s: string) =>
+  new Date(s + 'T12:00:00').toLocaleDateString('es-CL', { dateStyle: 'long' });
+
+const proxyLabel = (v: string) =>
+  v === 'si' ? 'Sí' : v === 'no' ? 'No' : 'Por confirmar';
+
+const buildPageUrl = (p: number) => {
+  const params = new URLSearchParams();
+  if (formatParam) params.set('formato', formatParam);
+  if (tipoParam !== 'proximos') params.set('tipo', tipoParam);
+  if (p > 1) params.set('pagina', String(p));
+  const qs = params.toString();
+  return `/events${qs ? '?' + qs : ''}`;
+};
+---
+
+<BaseLayout
+  title="Torneos"
+  description="Listado de torneos y eventos de Vampire: The Eternal Struggle en Chile."
+>
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+
+    <header class="mb-10">
+      <h1 class="font-serif text-4xl font-bold text-night-50">Torneos</h1>
+      <p class="mt-2 text-night-400">Todos los eventos de VTES en Chile.</p>
+    </header>
+
+    <!-- Filtros -->
+    <form method="GET" class="mb-10 flex flex-wrap items-end gap-4">
+
+      <!-- Tabs Próximos / Pasados -->
+      <div class="flex rounded-sm overflow-hidden border border-night-700" role="group" aria-label="Tipo de evento">
+        <label class="relative cursor-pointer">
+          <input
+            type="radio"
+            name="tipo"
+            value="proximos"
+            checked={tipoParam !== 'pasados'}
+            class="sr-only peer"
+          />
+          <span class="block px-4 py-2 text-sm font-medium transition-colors peer-checked:bg-blood-700 peer-checked:text-night-50 text-night-400 hover:text-night-200">
+            Próximos
+          </span>
+        </label>
+        <label class="relative cursor-pointer border-l border-night-700">
+          <input
+            type="radio"
+            name="tipo"
+            value="pasados"
+            checked={tipoParam === 'pasados'}
+            class="sr-only peer"
+          />
+          <span class="block px-4 py-2 text-sm font-medium transition-colors peer-checked:bg-blood-700 peer-checked:text-night-50 text-night-400 hover:text-night-200">
+            Pasados
+          </span>
+        </label>
+      </div>
+
+      <!-- Select de formato -->
+      <div class="flex flex-col gap-1">
+        <label for="formato-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+          Formato
+        </label>
+        <select
+          id="formato-select"
+          name="formato"
+          class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+        >
+          <option value="" selected={formatParam === ''}>Todos los formatos</option>
+          {validFormats.map(f => (
+            <option value={f} selected={formatParam === f}>{f}</option>
+          ))}
+        </select>
+      </div>
+
+      <!-- Acciones -->
+      <div class="flex items-end gap-3">
+        <button
+          type="submit"
+          class="px-4 py-2 bg-blood-700 hover:bg-blood-600 text-night-50 text-sm font-semibold rounded-sm transition-colors"
+        >
+          Filtrar
+        </button>
+        {hasActiveFilters && (
+          <a
+            href="/events"
+            class="px-4 py-2 text-sm text-night-400 hover:text-night-200 transition-colors"
+          >
+            Limpiar filtros
+          </a>
+        )}
+      </div>
+
+    </form>
+
+    <!-- Grid de eventos -->
+    {events.length > 0 ? (
+      <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {events.map(event => (
+          <li>
+            <article class="border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-2 h-full">
+              <time
+                datetime={event.data.date}
+                class="text-xs text-blood-500 font-medium tracking-wide uppercase"
+              >
+                {formatDate(event.data.date)}
+              </time>
+              <h2 class="text-night-100 font-semibold leading-snug">
+                <a
+                  href={`/events/${event.id}`}
+                  class="hover:text-blood-400 transition-colors"
+                >
+                  {event.data.title}
+                </a>
+              </h2>
+              <p class="text-sm text-night-400">{event.data.city} · {event.data.format}</p>
+              <p class="text-sm font-medium text-gold-400">{formatCLP(event.data.entryFee)}</p>
+              <p class="text-xs text-night-500">Proxies: {proxyLabel(event.data.proxyesAllowed)}</p>
+            </article>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-night-500 py-12 text-center">
+        No hay torneos {tipoParam === 'proximos' ? 'próximos' : 'pasados'}
+        {formatParam ? ` con formato ${formatParam}` : ''}.
+      </p>
+    )}
+
+    <!-- Paginación -->
+    {totalPages > 1 && (
+      <nav
+        aria-label="Paginación"
+        class="mt-12 flex items-center justify-center gap-4 text-sm"
+      >
+        {page > 1 ? (
+          <a
+            href={buildPageUrl(page - 1)}
+            class="px-4 py-2 border border-night-700 text-night-300 hover:border-night-500 hover:text-night-100 rounded-sm transition-colors"
+          >
+            ← Anterior
+          </a>
+        ) : (
+          <span class="px-4 py-2 border border-night-800 text-night-700 rounded-sm cursor-not-allowed">
+            ← Anterior
+          </span>
+        )}
+
+        <span class="text-night-400">
+          Página {page} de {totalPages}
+        </span>
+
+        {page < totalPages ? (
+          <a
+            href={buildPageUrl(page + 1)}
+            class="px-4 py-2 border border-night-700 text-night-300 hover:border-night-500 hover:text-night-100 rounded-sm transition-colors"
+          >
+            Siguiente →
+          </a>
+        ) : (
+          <span class="px-4 py-2 border border-night-800 text-night-700 rounded-sm cursor-not-allowed">
+            Siguiente →
+          </span>
+        )}
+      </nav>
+    )}
+
+  </div>
+</BaseLayout>
