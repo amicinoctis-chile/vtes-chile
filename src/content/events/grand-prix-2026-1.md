@@ -2,7 +2,7 @@
 title: "Primer Grand Prix 2026"
 description: "Primera fecha del circuito Grand Prix"
 date: "2026-04-26"
-location: "Portal Freire 566 San Bernardo"
+location: "Athenas Store- Portal Freire 566 San Bernardo"
 city: "San Bernardo"
 format: "standard"
 proxyesAllowed: "no"
