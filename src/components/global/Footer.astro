@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import darkpackLogo from '@/assets/DarkPack_Logo2.png';
+import Logo from '@/assets/logo-vtes-chile.svg'
 
 const footerNavs = [
   {
@@ -36,12 +37,7 @@ const footerNavs = [
       <!-- Branding -->
       <div>
         <a href="/" aria-label="VTES Chile — Inicio" class="mb-4 inline-block">
-          <img
-            src="/logo-vtes-chile.svg"
-            alt="VTES Chile"
-            class="h-9 w-auto opacity-70 hover:opacity-100 transition-opacity"
-            loading="lazy"
-          />
+          <Logo width=auto height={12} fill="currentColor"/>
         </a>
         <p class="mt-4 text-sm text-night-500">
           Comunidad chilena de Vampire: The Eternal Struggle
