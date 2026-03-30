@@ -34,7 +34,7 @@ const events = defineCollection({
     maxPlayers: z.number().int().positive().optional(),
     registrationUrl: z.url().optional(),
     resultsUrl: z.url().optional(),
-    img: z.string().optional(),
+    img: z.string().default("default.jpg")
   }),
 });
 
@@ -111,6 +111,7 @@ const decks = defineCollection({
     url: z.url().optional(),
     pubDate: z.iso.datetime(),
     tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
     comments: z.string().optional(),
   }),
 });
