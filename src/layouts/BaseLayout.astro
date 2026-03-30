@@ -1,8 +1,7 @@
 ---
 import Font from 'astro/components/Font.astro';
-import { Image } from 'astro:assets';
 import '@/styles/global.css';
-import darkpackLogo from '@/assets/DarkPack_Logo2.png';
+import Footer from '@/components/global/Footer.astro';
 
 interface Props {
   /** Título de la página (se añade "— VTES Chile" automáticamente) */
@@ -183,68 +182,11 @@ function isActive(href: string): boolean {
       </div>
     </header>
 
-    <!-- ═══════════════════════════ CONTENIDO ═══════════════════════════ -->
     <main id="main-content">
       <slot />
     </main>
 
-    <!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
-    <footer class="mt-24 border-t border-night-800/60 bg-night-950">
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <div class="flex flex-col items-center gap-8">
-
-          <!-- Dark Pack logo -->
-          <a
-            href="https://www.paradoxinteractive.com/games/vampire-the-masquerade/dark-pack"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Dark Pack — Paradox Interactive"
-            class="opacity-50 hover:opacity-75 transition-opacity"
-          >
-            <Image
-              src={darkpackLogo}
-              alt="Dark Pack"
-              width={80}
-              height={80}
-              class="w-20 h-20 object-contain"
-              loading="lazy"
-            />
-          </a>
-
-          <!-- Info y contacto -->
-          <div class="text-center space-y-2">
-            <p class="font-serif text-lg text-blood-700 tracking-widest uppercase">
-              VTES Chile
-            </p>
-            <p class="text-night-500 text-sm">
-              Comunidad chilena de Vampire: The Eternal Struggle
-            </p>
-            <a
-              href="mailto:amicinoctis.chile@gmail.com"
-              class="inline-block text-sm text-night-400 hover:text-gold-500 transition-colors mt-1"
-            >
-              amicinoctis.chile@gmail.com
-            </a>
-          </div>
-
-          <!-- Créditos legales -->
-          <p class="text-night-700 text-xs text-center max-w-prose leading-relaxed">
-            Sitio fan no oficial. Vampire: The Eternal Struggle, el Mundo de Tinieblas y sus personajes
-            son marcas registradas de{' '}
-            <a
-              href="https://www.paradoxinteractive.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="hover:text-night-500 transition-colors underline underline-offset-2"
-            >
-              Paradox Interactive AB
-            </a>.
-            Contenido creado bajo los términos del Dark Pack.
-          </p>
-
-        </div>
-      </div>
-    </footer>
+    <Footer /> 
 
     <!-- Toggle del menú móvil (nonce permite el script inline con CSP) -->
     <script nonce={cspNonce}>

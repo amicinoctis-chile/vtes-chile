@@ -1,0 +1,110 @@
+---
+import { Image } from 'astro:assets';
+import darkpackLogo from '@/assets/DarkPack_Logo2.png';
+
+const footerNavs = [
+  {
+    title: 'Juego',
+    items: [
+      { text: 'Torneos', href: '/events' },
+      { text: 'Ligas', href: '/ligas' },
+      { text: 'Decks', href: '/decks' },
+    ],
+  },
+  {
+    title: 'Comunidad',
+    items: [
+      { text: 'Tiendas', href: '/tiendas' },
+      { text: 'Comunidad', href: '/comunidad' },
+      { text: 'Blog', href: '/blog' },
+    ],
+  },
+  {
+    title: 'Contacto',
+    items: [
+      { text: 'amicinoctis.chile@gmail.com', href: 'mailto:amicinoctis.chile@gmail.com' },
+    ],
+  },
+];
+---
+
+<footer class="mt-24 border-t border-night-800/60 bg-night-950">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+
+      <!-- Branding -->
+      <div>
+        <a href="/" aria-label="VTES Chile — Inicio" class="mb-4 inline-block">
+          <img
+            src="/logo-vtes-chile.svg"
+            alt="VTES Chile"
+            class="h-9 w-auto opacity-70 hover:opacity-100 transition-opacity"
+            loading="lazy"
+          />
+        </a>
+        <p class="mt-4 text-sm text-night-500">
+          Comunidad chilena de Vampire: The Eternal Struggle
+        </p>
+      </div>
+
+      <!-- Nav groups -->
+      {footerNavs.map(group => (
+        <div>
+          <h4 class="text-sm font-semibold text-night-100 mb-4 tracking-wide uppercase">
+            {group.title}
+          </h4>
+          <ul class="space-y-2">
+            {group.items.map(item => (
+              <li>
+                <a
+                  href={item.href}
+                  class="text-sm text-night-400 hover:text-blood-500 transition-colors"
+                >
+                  {item.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="border-t border-night-800/60 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+
+      <a
+        href="https://www.paradoxinteractive.com/games/vampire-the-masquerade/dark-pack"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Dark Pack — Paradox Interactive"
+        class="opacity-50 hover:opacity-75 transition-opacity shrink-0"
+      >
+        <Image
+          src={darkpackLogo}
+          alt="Dark Pack"
+          width={64}
+          height={64}
+          class="w-16 h-16 object-contain"
+          loading="lazy"
+        />
+      </a>
+
+      <p class="text-xs text-night-700 text-center md:text-right max-w-prose leading-relaxed">
+        Sitio fan no oficial. Vampire: The Eternal Struggle, el Mundo de Tinieblas y sus personajes
+        son marcas registradas de{' '}
+        <a
+          href="https://www.paradoxinteractive.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:text-night-500 transition-colors underline underline-offset-2"
+        >
+          Paradox Interactive AB
+        </a>.
+        Contenido creado bajo los términos del Dark Pack.
+      </p>
+
+    </div>
+  </div>
+</footer>
