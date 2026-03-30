@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import Font from 'astro/components/Font.astro';
 import darkpackLogo from '@/assets/DarkPack_Logo2.png';
 import Logo from '@/assets/logo-vtes-chile.svg'
 
@@ -29,6 +30,8 @@ const footerNavs = [
 ];
 ---
 
+<Font cssVariable="--font-cinzel" preload />
+<Font cssVariable="--font-inter" />
 <footer class="mt-24 border-t border-night-800/60 bg-night-950">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
 
