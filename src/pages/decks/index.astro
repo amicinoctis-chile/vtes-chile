@@ -1,0 +1,245 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const clanParam    = Astro.url.searchParams.get('clan')       ?? '';
+const discParam    = Astro.url.searchParams.get('disciplina') ?? '';
+const formatoParam = Astro.url.searchParams.get('formato')    ?? '';
+const tagParam     = Astro.url.searchParams.get('tag')        ?? '';
+const paginaParam  = parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10);
+const PER_PAGE = 9;
+
+const allDecks = await getCollection('decks');
+allDecks.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
+
+const allClans       = [...new Set(allDecks.flatMap(d => d.data.clan))].sort();
+const allDisciplines = [...new Set(allDecks.flatMap(d => d.data.discipline))].sort();
+const allTags        = [...new Set(allDecks.flatMap(d => d.data.tags))].sort();
+const formats        = ['standard', 'v5'] as const;
+
+let filtered = allDecks;
+if (clanParam)    filtered = filtered.filter(d => d.data.clan.includes(clanParam));
+if (discParam)    filtered = filtered.filter(d => d.data.discipline.includes(discParam));
+if (formatoParam) filtered = filtered.filter(d => d.data.format === formatoParam);
+if (tagParam)     filtered = filtered.filter(d => d.data.tags.includes(tagParam));
+
+const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+const page = Math.min(Math.max(1, paginaParam), totalPages);
+const decks = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+const hasActiveFilters = clanParam !== '' || discParam !== '' || formatoParam !== '' || tagParam !== '';
+
+const formatDate = (s: string) =>
+  new Date(s).toLocaleDateString('es-CL', { dateStyle: 'medium' });
+
+const buildPageUrl = (p: number) => {
+  const params = new URLSearchParams();
+  if (clanParam)    params.set('clan', clanParam);
+  if (discParam)    params.set('disciplina', discParam);
+  if (formatoParam) params.set('formato', formatoParam);
+  if (tagParam)     params.set('tag', tagParam);
+  if (p > 1)        params.set('pagina', String(p));
+  const qs = params.toString();
+  return `/decks${qs ? '?' + qs : ''}`;
+};
+---
+
+<BaseLayout
+  title="Decks"
+  description="Decks de referencia y estrategias para Vampire: The Eternal Struggle en Chile."
+>
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+
+    <header class="mb-10">
+      <h1 class="font-serif text-4xl font-bold text-night-50">Decks</h1>
+      <p class="mt-2 text-night-400">Decks de referencia y estrategias para VTES.</p>
+    </header>
+
+    <!-- Filtros -->
+    <form method="GET" class="mb-10 flex flex-wrap items-end gap-4">
+
+      {allClans.length > 0 && (
+        <div class="flex flex-col gap-1">
+          <label for="clan-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+            Clan
+          </label>
+          <select
+            id="clan-select"
+            name="clan"
+            class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+          >
+            <option value="">Todos los clanes</option>
+            {allClans.map(c => (
+              <option value={c} selected={clanParam === c}>{c}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {allDisciplines.length > 0 && (
+        <div class="flex flex-col gap-1">
+          <label for="disc-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+            Disciplina
+          </label>
+          <select
+            id="disc-select"
+            name="disciplina"
+            class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+          >
+            <option value="">Todas las disciplinas</option>
+            {allDisciplines.map(d => (
+              <option value={d} selected={discParam === d}>{d}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <div class="flex flex-col gap-1">
+        <label for="formato-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+          Formato
+        </label>
+        <select
+          id="formato-select"
+          name="formato"
+          class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+        >
+          <option value="">Todos los formatos</option>
+          {formats.map(f => (
+            <option value={f} selected={formatoParam === f}>{f}</option>
+          ))}
+        </select>
+      </div>
+
+      {allTags.length > 0 && (
+        <div class="flex flex-col gap-1">
+          <label for="tag-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+            Tag
+          </label>
+          <select
+            id="tag-select"
+            name="tag"
+            class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+          >
+            <option value="">Todos los tags</option>
+            {allTags.map(t => (
+              <option value={t} selected={tagParam === t}>{t}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <div class="flex items-end gap-3">
+        <button
+          type="submit"
+          class="px-4 py-2 bg-blood-700 hover:bg-blood-600 text-night-50 text-sm font-semibold rounded-sm transition-colors"
+        >
+          Filtrar
+        </button>
+        {hasActiveFilters && (
+          <a
+            href="/decks"
+            class="px-4 py-2 text-sm text-night-400 hover:text-night-200 transition-colors"
+          >
+            Limpiar filtros
+          </a>
+        )}
+      </div>
+
+    </form>
+
+    <!-- Grid de decks -->
+    {decks.length > 0 ? (
+      <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {decks.map(deck => (
+          <li>
+            <article class="border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-3 h-full">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-night-500 font-medium uppercase tracking-wide border border-night-700 rounded-sm px-2 py-0.5">
+                  {deck.data.format}
+                </span>
+                <time datetime={deck.data.pubDate} class="text-xs text-night-600">
+                  {formatDate(deck.data.pubDate)}
+                </time>
+              </div>
+              <h2 class="text-night-100 font-semibold leading-snug">
+                <a
+                  href={`/decks/${deck.id}`}
+                  class="hover:text-blood-400 transition-colors"
+                >
+                  {deck.data.title}
+                </a>
+              </h2>
+              <p class="text-sm text-night-400 line-clamp-2 flex-1">{deck.data.description}</p>
+              {deck.data.clan.length > 0 && (
+                <p class="text-xs text-night-500">
+                  <span class="text-night-600">Clan:</span> {deck.data.clan.join(', ')}
+                </p>
+              )}
+              {deck.data.discipline.length > 0 && (
+                <p class="text-xs text-night-500">
+                  <span class="text-night-600">Disciplinas:</span> {deck.data.discipline.join(', ')}
+                </p>
+              )}
+              <p class="text-xs text-night-600">Por {deck.data.author}</p>
+              {deck.data.tags.length > 0 && (
+                <div class="flex flex-wrap gap-1 mt-auto">
+                  {deck.data.tags.map(tag => (
+                    <a
+                      href={`/decks?tag=${encodeURIComponent(tag)}`}
+                      class="text-xs text-night-600 hover:text-night-400 transition-colors"
+                    >
+                      #{tag}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </article>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-night-500 py-12 text-center">
+        {hasActiveFilters
+          ? 'No hay decks con los filtros seleccionados.'
+          : 'No hay decks registrados.'}
+      </p>
+    )}
+
+    <!-- Paginación -->
+    {totalPages > 1 && (
+      <nav
+        aria-label="Paginación"
+        class="mt-12 flex items-center justify-center gap-4 text-sm"
+      >
+        {page > 1 ? (
+          <a
+            href={buildPageUrl(page - 1)}
+            class="px-4 py-2 border border-night-700 text-night-300 hover:border-night-500 hover:text-night-100 rounded-sm transition-colors"
+          >
+            ← Anterior
+          </a>
+        ) : (
+          <span class="px-4 py-2 border border-night-800 text-night-700 rounded-sm cursor-not-allowed">
+            ← Anterior
+          </span>
+        )}
+
+        <span class="text-night-400">Página {page} de {totalPages}</span>
+
+        {page < totalPages ? (
+          <a
+            href={buildPageUrl(page + 1)}
+            class="px-4 py-2 border border-night-700 text-night-300 hover:border-night-500 hover:text-night-100 rounded-sm transition-colors"
+          >
+            Siguiente →
+          </a>
+        ) : (
+          <span class="px-4 py-2 border border-night-800 text-night-700 rounded-sm cursor-not-allowed">
+            Siguiente →
+          </span>
+        )}
+      </nav>
+    )}
+
+  </div>
+</BaseLayout>
