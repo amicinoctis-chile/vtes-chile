@@ -39,8 +39,7 @@ src/
 │   ├── sites/          # perfiles RRSS y comunidades (.md/.mdx)
 │   └── stores/         # tiendas donde se juega (.md/.mdx)
 ├── layouts/
-│   ├── BaseLayout.astro  # layout principal: nav, footer, OG tags, Fonts API, CSP nonce
-│   └── Layout.astro      # layout legacy (sin usar en páginas nuevas)
+│   └── BaseLayout.astro  # layout principal: nav, footer, OG tags, Fonts API, CSP nonce
 ├── pages/              # enrutado basado en archivos (Astro file-based routing)
 └── styles/
     └── global.css      # @import "tailwindcss" + paleta blood/night/gold con @theme {}
@@ -78,7 +77,7 @@ src/
 ### Request Flow
 
 ```
-Request → Cloudflare Workers → Astro SSR → middleware.ts → page → Layout.astro
+Request → Cloudflare Workers → Astro SSR → middleware.ts → page → BaseLayout.astro
 ```
 
 El middleware (`src/middleware.ts`) se ejecuta en cada request y:
