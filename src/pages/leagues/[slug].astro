@@ -1,0 +1,144 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getEntry, render } from 'astro:content';
+
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect('/leagues');
+
+const entry = await getEntry('leagues', slug);
+if (!entry) return new Response(null, { status: 404, statusText: 'Not Found' });
+
+const league = entry.data;
+const { Content } = await render(entry);
+
+const MONTH_NAMES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio',
+  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+const formatCLP = (n: number) =>
+  n === 0 ? 'Gratuito' : n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
+
+const proxyLabel = (v: string) =>
+  v === 'si' ? 'Sí' : v === 'no' ? 'No' : 'Por confirmar';
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+---
+
+<BaseLayout
+  title={league.title}
+  description={league.description}
+  ogType="article"
+>
+  <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="mb-8 text-sm text-night-500">
+      <a href="/leagues" class="hover:text-night-300 transition-colors">Ligas</a>
+      <span class="mx-2">/</span>
+      <span class="text-night-300">{league.title}</span>
+    </nav>
+
+    <!-- Cabecera -->
+    <header class="mb-10">
+      <p class="text-xs text-blood-500 font-medium tracking-wide uppercase mb-2">
+        {capitalize(league.day)} · {league.hour} — {MONTH_NAMES[league.month]} {league.year}
+      </p>
+      <h1 class="font-serif text-4xl lg:text-5xl font-bold text-night-50 leading-tight">
+        {league.title}
+      </h1>
+      <p class="mt-4 text-lg text-night-300">{league.description}</p>
+    </header>
+
+    <!-- Grid de detalles -->
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 border border-night-800 rounded-sm p-6 bg-night-900/30 mb-10">
+      <div>
+        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Día</dt>
+        <dd class="mt-1 text-night-100">{capitalize(league.day)}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Horario</dt>
+        <dd class="mt-1 text-night-100">{league.hour}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Mes</dt>
+        <dd class="mt-1 text-night-100">{MONTH_NAMES[league.month]}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Año</dt>
+        <dd class="mt-1 text-night-100">{league.year}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Lugar</dt>
+        <dd class="mt-1 text-night-100">{league.location}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Ciudad</dt>
+        <dd class="mt-1 text-night-100">{league.city}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Formato</dt>
+        <dd class="mt-1 text-night-100">{league.format}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Rondas</dt>
+        <dd class="mt-1 text-night-100">{league.rounds}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Entrada</dt>
+        <dd class="mt-1 text-night-100">{formatCLP(league.entryFee)}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Proxies</dt>
+        <dd class="mt-1 text-night-100">{proxyLabel(league.proxyesAllowed)}</dd>
+      </div>
+      <div>
+        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Organizador</dt>
+        <dd class="mt-1 text-night-100">{league.organizer}</dd>
+      </div>
+      {league.maxPlayers && (
+        <div>
+          <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Jugadores máx.</dt>
+          <dd class="mt-1 text-night-100">{league.maxPlayers}</dd>
+        </div>
+      )}
+    </dl>
+
+    <!-- CTAs -->
+    <div class="flex flex-wrap gap-4 mb-10">
+      {league.registrationUrl && (
+        <a
+          href={league.registrationUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-blood-700 hover:bg-blood-600 text-night-50 font-semibold rounded-sm transition-colors"
+        >
+          Inscribirse ↗
+        </a>
+      )}
+      {league.resultsUrl && (
+        <a
+          href={league.resultsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-6 py-3 border border-night-700 hover:border-night-500 text-night-200 font-semibold rounded-sm transition-colors"
+        >
+          Ver resultados ↗
+        </a>
+      )}
+    </div>
+
+    <!-- Contenido markdown -->
+    {entry.body && (
+      <div class="mt-10 prose prose-invert prose-sm max-w-none">
+        <Content />
+      </div>
+    )}
+
+    <!-- Volver -->
+    <div class="mt-16 pt-8 border-t border-night-900">
+      <a href="/leagues" class="text-sm text-blood-500 hover:text-blood-400 transition-colors">
+        ← Volver a ligas
+      </a>
+    </div>
+
+  </div>
+</BaseLayout>
