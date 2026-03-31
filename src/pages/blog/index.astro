@@ -1,0 +1,164 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const tagParam = Astro.url.searchParams.get('tag') ?? '';
+const paginaParam = parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10);
+const PER_PAGE = 9;
+
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+allPosts.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
+
+const allTags = [...new Set(allPosts.flatMap(p => p.data.tags))].sort();
+
+const filtered = tagParam
+  ? allPosts.filter(p => p.data.tags.includes(tagParam))
+  : allPosts;
+
+const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+const page = Math.min(Math.max(1, paginaParam), totalPages);
+const posts = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+const formatDate = (s: string) =>
+  new Date(s).toLocaleDateString('es-CL', { dateStyle: 'medium' });
+
+const buildPageUrl = (p: number) => {
+  const params = new URLSearchParams();
+  if (tagParam) params.set('tag', tagParam);
+  if (p > 1) params.set('pagina', String(p));
+  const qs = params.toString();
+  return `/blog${qs ? '?' + qs : ''}`;
+};
+---
+
+<BaseLayout
+  title="Blog"
+  description="Noticias y artículos de la comunidad VTES Chile."
+>
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+
+    <header class="mb-10">
+      <h1 class="font-serif text-4xl font-bold text-night-50">Blog</h1>
+      <p class="mt-2 text-night-400">Noticias y artículos de la comunidad.</p>
+    </header>
+
+    <!-- Chips de tags -->
+    {allTags.length > 0 && (
+      <div class="mb-10 flex flex-wrap gap-2">
+        <a
+          href="/blog"
+          class:list={[
+            'px-3 py-1 rounded-sm text-xs font-medium transition-colors border',
+            !tagParam
+              ? 'bg-blood-700 border-blood-700 text-night-50'
+              : 'border-night-700 text-night-400 hover:border-night-500 hover:text-night-200',
+          ]}
+        >
+          Todos
+        </a>
+        {allTags.map(tag => (
+          <a
+            href={`/blog?tag=${encodeURIComponent(tag)}`}
+            class:list={[
+              'px-3 py-1 rounded-sm text-xs font-medium transition-colors border',
+              tagParam === tag
+                ? 'bg-blood-700 border-blood-700 text-night-50'
+                : 'border-night-700 text-night-400 hover:border-night-500 hover:text-night-200',
+            ]}
+          >
+            {tag}
+          </a>
+        ))}
+      </div>
+    )}
+
+    <!-- Grid de posts -->
+    {posts.length > 0 ? (
+      <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {posts.map(post => (
+          <li>
+            <article class="border border-night-800 bg-night-900/50 rounded-sm overflow-hidden hover:border-blood-800 transition-colors flex flex-col h-full">
+              {post.data.img && (
+                <img
+                  src={`/images/blog/${post.data.img}`}
+                  alt={post.data.title}
+                  class="w-full h-40 object-cover"
+                  loading="lazy"
+                />
+              )}
+              <div class="p-5 flex flex-col gap-2 flex-1">
+                <time datetime={post.data.pubDate} class="text-xs text-night-500">
+                  {formatDate(post.data.pubDate)}
+                </time>
+                <h2 class="text-night-100 font-semibold leading-snug">
+                  <a
+                    href={`/blog/${post.id}`}
+                    class="hover:text-blood-400 transition-colors"
+                  >
+                    {post.data.title}
+                  </a>
+                </h2>
+                <p class="text-sm text-night-400 line-clamp-2 flex-1">
+                  {post.data.description}
+                </p>
+                {post.data.tags.length > 0 && (
+                  <div class="flex flex-wrap gap-1 mt-2">
+                    {post.data.tags.map(tag => (
+                      <a
+                        href={`/blog?tag=${encodeURIComponent(tag)}`}
+                        class="text-xs text-night-600 hover:text-night-400 transition-colors"
+                      >
+                        #{tag}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </article>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-night-500 py-12 text-center">
+        No hay artículos{tagParam ? ` con el tag #${tagParam}` : ''}.
+      </p>
+    )}
+
+    <!-- Paginación -->
+    {totalPages > 1 && (
+      <nav
+        aria-label="Paginación"
+        class="mt-12 flex items-center justify-center gap-4 text-sm"
+      >
+        {page > 1 ? (
+          <a
+            href={buildPageUrl(page - 1)}
+            class="px-4 py-2 border border-night-700 text-night-300 hover:border-night-500 hover:text-night-100 rounded-sm transition-colors"
+          >
+            ← Anterior
+          </a>
+        ) : (
+          <span class="px-4 py-2 border border-night-800 text-night-700 rounded-sm cursor-not-allowed">
+            ← Anterior
+          </span>
+        )}
+
+        <span class="text-night-400">Página {page} de {totalPages}</span>
+
+        {page < totalPages ? (
+          <a
+            href={buildPageUrl(page + 1)}
+            class="px-4 py-2 border border-night-700 text-night-300 hover:border-night-500 hover:text-night-100 rounded-sm transition-colors"
+          >
+            Siguiente →
+          </a>
+        ) : (
+          <span class="px-4 py-2 border border-night-800 text-night-700 rounded-sm cursor-not-allowed">
+            Siguiente →
+          </span>
+        )}
+      </nav>
+    )}
+
+  </div>
+</BaseLayout>
