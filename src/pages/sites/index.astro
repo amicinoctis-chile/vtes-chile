@@ -1,0 +1,115 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allSites = await getCollection('sites');
+
+const activeSites = allSites
+  .filter(s => s.data.active !== false)
+  .sort((a, b) => a.data.platform.localeCompare(b.data.platform, 'es'));
+
+const inactiveSites = allSites
+  .filter(s => s.data.active === false)
+  .sort((a, b) => a.data.platform.localeCompare(b.data.platform, 'es'));
+---
+
+<BaseLayout
+  title="Comunidad"
+  description="Redes sociales, comunidades y contenido de Vampire: The Eternal Struggle en Chile."
+>
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+
+    <header class="mb-10">
+      <h1 class="font-serif text-4xl font-bold text-night-50">Comunidad</h1>
+      <p class="mt-2 text-night-400">Redes sociales, comunidades y contenido de VTES en Chile.</p>
+    </header>
+
+    <!-- Sitios activos -->
+    {activeSites.length > 0 ? (
+      <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {activeSites.map(site => (
+          <li>
+            <article class="border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-3 h-full">
+              {site.data.img && (
+                <img
+                  src={`/images/sites/${site.data.img}`}
+                  alt={site.data.name}
+                  class="w-12 h-12 object-contain rounded-sm"
+                  loading="lazy"
+                />
+              )}
+              <div>
+                <span class="text-xs text-night-500 font-medium uppercase tracking-wide">
+                  {site.data.platform}
+                </span>
+                <h2 class="text-night-100 font-semibold mt-1">{site.data.name}</h2>
+                <p class="text-sm text-night-400 mt-1">{site.data.description}</p>
+              </div>
+              {site.data.url && (
+                <a
+                  href={site.data.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="mt-auto text-xs text-blood-500 hover:text-blood-400 transition-colors font-medium"
+                >
+                  Visitar ↗
+                </a>
+              )}
+            </article>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-night-500 py-12 text-center">No hay sitios registrados.</p>
+    )}
+
+    <!-- Sitios inactivos -->
+    {inactiveSites.length > 0 && (
+      <section class="mt-16">
+        <h2 class="font-serif text-xl font-bold text-night-500 mb-6">Inactivos</h2>
+        <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {inactiveSites.map(site => (
+            <li>
+              <article class="border border-night-800 bg-night-900/30 rounded-sm p-5 opacity-60 flex flex-col gap-3 h-full">
+                {site.data.img && (
+                  <img
+                    src={`/images/sites/${site.data.img}`}
+                    alt={site.data.name}
+                    class="w-12 h-12 object-contain rounded-sm"
+                    loading="lazy"
+                  />
+                )}
+                <div>
+                  <span class="text-xs text-night-500 font-medium uppercase tracking-wide">
+                    {site.data.platform}
+                  </span>
+                  <h2 class="text-night-100 font-semibold mt-1">{site.data.name}</h2>
+                  <p class="text-sm text-night-400 mt-1">{site.data.description}</p>
+                  {site.data.comments && (
+                    <p class="text-xs text-night-600 mt-1 italic">{site.data.comments}</p>
+                  )}
+                </div>
+                <div class="flex items-center justify-between mt-auto">
+                  <span class="text-xs text-night-700 border border-night-800 rounded-sm px-2 py-0.5">
+                    Inactivo
+                  </span>
+                  {site.data.url && (
+                    <a
+                      href={site.data.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-xs text-night-500 hover:text-night-300 transition-colors"
+                    >
+                      Visitar ↗
+                    </a>
+                  )}
+                </div>
+              </article>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+  </div>
+</BaseLayout>
