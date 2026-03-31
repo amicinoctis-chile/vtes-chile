@@ -1,0 +1,231 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const mesParam = Astro.url.searchParams.get('mes') ?? '';
+const añoParam = Astro.url.searchParams.get('año') ?? '';
+const formatoParam = Astro.url.searchParams.get('formato') ?? '';
+const paginaParam = parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10);
+const PER_PAGE = 9;
+
+const MONTH_NAMES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio',
+  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+const formatCLP = (n: number) =>
+  n === 0 ? 'Gratuito' : n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
+
+const proxyLabel = (v: string) =>
+  v === 'si' ? 'Sí' : v === 'no' ? 'No' : 'Por confirmar';
+
+const validFormats = ['V5', 'standard', 'storyline', 'limited', 'casual'] as const;
+type LeagueFormat = typeof validFormats[number];
+
+const dayOrder = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
+
+// Guardar colección completa para calcular años únicos antes de filtrar
+const allLeaguesRaw = await getCollection('leagues');
+const allYears = [...new Set(allLeaguesRaw.map(l => l.data.year))].sort((a, b) => a - b);
+
+let allLeagues = [...allLeaguesRaw];
+
+// Filtro por mes
+const mesNum = parseInt(mesParam, 10);
+if (mesParam && !isNaN(mesNum)) {
+  allLeagues = allLeagues.filter(l => l.data.month === mesNum);
+}
+
+// Filtro por año
+const añoNum = parseInt(añoParam, 10);
+if (añoParam && !isNaN(añoNum)) {
+  allLeagues = allLeagues.filter(l => l.data.year === añoNum);
+}
+
+// Filtro por formato
+if (validFormats.includes(formatoParam as LeagueFormat)) {
+  allLeagues = allLeagues.filter(l => l.data.format === formatoParam);
+}
+
+// Ordenar: año asc → mes asc → día de semana asc
+allLeagues.sort((a, b) => {
+  if (a.data.year !== b.data.year) return a.data.year - b.data.year;
+  if (a.data.month !== b.data.month) return a.data.month - b.data.month;
+  return dayOrder.indexOf(a.data.day) - dayOrder.indexOf(b.data.day);
+});
+
+const totalPages = Math.max(1, Math.ceil(allLeagues.length / PER_PAGE));
+const page = Math.min(Math.max(1, paginaParam), totalPages);
+const leagues = allLeagues.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+const hasActiveFilters = mesParam !== '' || añoParam !== '' || formatoParam !== '';
+
+const buildPageUrl = (p: number) => {
+  const params = new URLSearchParams();
+  if (mesParam) params.set('mes', mesParam);
+  if (añoParam) params.set('año', añoParam);
+  if (formatoParam) params.set('formato', formatoParam);
+  if (p > 1) params.set('pagina', String(p));
+  const qs = params.toString();
+  return `/leagues${qs ? '?' + qs : ''}`;
+};
+---
+
+<BaseLayout
+  title="Ligas"
+  description="Ligas recurrentes de Vampire: The Eternal Struggle en Chile."
+>
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+
+    <header class="mb-10">
+      <h1 class="font-serif text-4xl font-bold text-night-50">Ligas</h1>
+      <p class="mt-2 text-night-400">Ligas recurrentes de VTES en Chile.</p>
+    </header>
+
+    <!-- Filtros -->
+    <form method="GET" class="mb-10 flex flex-wrap items-end gap-4">
+
+      <!-- Mes -->
+      <div class="flex flex-col gap-1">
+        <label for="mes-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+          Mes
+        </label>
+        <select
+          id="mes-select"
+          name="mes"
+          class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+        >
+          <option value="">Todos los meses</option>
+          {MONTH_NAMES.slice(1).map((name, i) => (
+            <option value={i + 1} selected={mesParam === String(i + 1)}>{name}</option>
+          ))}
+        </select>
+      </div>
+
+      <!-- Año -->
+      <div class="flex flex-col gap-1">
+        <label for="año-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+          Año
+        </label>
+        <select
+          id="año-select"
+          name="año"
+          class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+        >
+          <option value="">Todos los años</option>
+          {allYears.map(y => (
+            <option value={y} selected={añoParam === String(y)}>{y}</option>
+          ))}
+        </select>
+      </div>
+
+      <!-- Formato -->
+      <div class="flex flex-col gap-1">
+        <label for="formato-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+          Formato
+        </label>
+        <select
+          id="formato-select"
+          name="formato"
+          class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+        >
+          <option value="">Todos los formatos</option>
+          {validFormats.map(f => (
+            <option value={f} selected={formatoParam === f}>{f}</option>
+          ))}
+        </select>
+      </div>
+
+      <!-- Acciones -->
+      <div class="flex items-end gap-3">
+        <button
+          type="submit"
+          class="px-4 py-2 bg-blood-700 hover:bg-blood-600 text-night-50 text-sm font-semibold rounded-sm transition-colors"
+        >
+          Filtrar
+        </button>
+        {hasActiveFilters && (
+          <a
+            href="/leagues"
+            class="px-4 py-2 text-sm text-night-400 hover:text-night-200 transition-colors"
+          >
+            Limpiar filtros
+          </a>
+        )}
+      </div>
+
+    </form>
+
+    <!-- Grid de ligas -->
+    {leagues.length > 0 ? (
+      <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {leagues.map(league => (
+          <li>
+            <article class="border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-2 h-full">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-blood-500 font-medium tracking-wide uppercase">
+                  {league.data.day} · {league.data.hour}
+                </span>
+                <span class="text-xs text-night-500">
+                  {MONTH_NAMES[league.data.month]} {league.data.year}
+                </span>
+              </div>
+              <h2 class="text-night-100 font-semibold leading-snug">
+                <a
+                  href={`/leagues/${league.id}`}
+                  class="hover:text-blood-400 transition-colors"
+                >
+                  {league.data.title}
+                </a>
+              </h2>
+              <p class="text-sm text-night-400">{league.data.city} · {league.data.format}</p>
+              <p class="text-sm font-medium text-gold-400">{formatCLP(league.data.entryFee)}</p>
+              <p class="text-xs text-night-500">Proxies: {proxyLabel(league.data.proxyesAllowed)}</p>
+            </article>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-night-500 py-12 text-center">
+        No hay ligas{mesParam && !isNaN(mesNum) ? ` en ${MONTH_NAMES[mesNum]}` : ''}
+        {añoParam ? ` ${añoParam}` : ''}
+        {formatoParam ? ` con formato ${formatoParam}` : ''}.
+      </p>
+    )}
+
+    <!-- Paginación -->
+    {totalPages > 1 && (
+      <nav
+        aria-label="Paginación"
+        class="mt-12 flex items-center justify-center gap-4 text-sm"
+      >
+        {page > 1 ? (
+          <a
+            href={buildPageUrl(page - 1)}
+            class="px-4 py-2 border border-night-700 text-night-300 hover:border-night-500 hover:text-night-100 rounded-sm transition-colors"
+          >
+            ← Anterior
+          </a>
+        ) : (
+          <span class="px-4 py-2 border border-night-800 text-night-700 rounded-sm cursor-not-allowed">
+            ← Anterior
+          </span>
+        )}
+
+        <span class="text-night-400">Página {page} de {totalPages}</span>
+
+        {page < totalPages ? (
+          <a
+            href={buildPageUrl(page + 1)}
+            class="px-4 py-2 border border-night-700 text-night-300 hover:border-night-500 hover:text-night-100 rounded-sm transition-colors"
+          >
+            Siguiente →
+          </a>
+        ) : (
+          <span class="px-4 py-2 border border-night-800 text-night-700 rounded-sm cursor-not-allowed">
+            Siguiente →
+          </span>
+        )}
+      </nav>
+    )}
+
+  </div>
+</BaseLayout>
