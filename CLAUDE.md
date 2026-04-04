@@ -129,7 +129,9 @@ No hay `tailwind.config.js`. La configuración completa está en `src/styles/glo
 Paleta de colores personalizada disponible como clases de Tailwind:
 - `blood-{50..950}` — rojos oscuros (acción, énfasis)
 - `night-{50..950}` — grises azulados (fondos, texto)
-- `gold-{400,500,600}` — dorado (hover de navegación)
+- `gold-{50..950}` — dorado (hover de navegación)
+- `ember-{50..950}` — naranjas cálidos
+- `success-{50..950}` — verdes (estados positivos)
 
 Fuentes: `font-serif` → `var(--font-cinzel)`, `font-sans` → `var(--font-inter)`. Las variables CSS son generadas por la Fonts API de Astro 6 (configurada en `astro.config.ts` bajo `fonts[]`). Las fuentes se descargan en build time y se sirven desde `'self'` sin depender de Google CDN en runtime.
 
