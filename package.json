@@ -16,14 +16,11 @@
     "cf:deploy": "wrangler pages deploy ./dist"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^13.1.4",
+    "@astrojs/cloudflare": "^13.1.7",
     "astro": "^6.1.0"
   },
-  "overrides": {
-    "@cloudflare/vite-plugin": "~1.25.6"
-  },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "~1.25.6",
+    "@cloudflare/vite-plugin": "^1.31.0",
     "@tailwindcss/vite": "^4.2.2",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",
