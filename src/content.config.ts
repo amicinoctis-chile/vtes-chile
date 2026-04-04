@@ -13,7 +13,7 @@ const blog = defineCollection({
     author: z.string().default('Gabriel Walker'),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
-    img: z.string().optional(),
+    img: z.string().default("default.jpg"),
   }),
 });
 
@@ -34,7 +34,7 @@ const events = defineCollection({
     maxPlayers: z.number().int().positive().optional(),
     registrationUrl: z.url().optional(),
     resultsUrl: z.url().optional(),
-    img: z.string().default("default.jpg")
+    img: z.string().default("default.jpg"),
   }),
 });
 
