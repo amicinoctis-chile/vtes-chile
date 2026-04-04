@@ -34,7 +34,7 @@ src/
 ├── content/
 │   ├── blog/           # artículos de la comunidad (.md/.mdx)
 │   ├── decks/          # decks de referencia (.md/.mdx)
-│   ├── events/         # torneos y eventos (.md/.mdx)
+│   ├── events/         # eventos (.md/.mdx)
 │   ├── leagues/        # ligas recurrentes (.md/.mdx)
 │   ├── sites/          # perfiles RRSS y comunidades (.md/.mdx)
 │   └── stores/         # tiendas donde se juega (.md/.mdx)
@@ -68,9 +68,27 @@ src/
    - `date` en `events`: `"2026-04-26"` (`z.iso.date()`, sin hora)
    - `hour` en `leagues`: `"19:30"` (`z.iso.time()`, formato HH:MM)
 
-## Dependency Constraint
+## Environment Variables (Cloudflare Workers)
 
-`@cloudflare/vite-plugin` está pinado a `~1.25.6` (tanto en `devDependencies` como en `overrides`). Las versiones 1.26+ introducen un bug donde `require_dist is not a function` al ejecutar `astro build` o `astro sync` en Windows. No actualizar sin verificar que el bug esté resuelto.
+Para acceder a variables de entorno en páginas SSR, usar el módulo de Cloudflare directamente:
+
+```ts
+import { env } from 'cloudflare:workers';
+
+const myVar = (env as Record<string, string | undefined>).MY_VAR ?? '';
+```
+
+> **No usar** `Astro.locals.runtime.env` — fue removido en Astro v6.
+
+Las variables de entorno se configuran en el dashboard de Cloudflare Pages (Settings → Environment variables). Para desarrollo local se pueden definir en `.dev.vars` (ignorado por git).
+
+Variables requeridas actualmente:
+
+| Variable | Uso |
+|---|---|
+| `TURNSTILE_SITE_KEY` | Clave pública del widget Cloudflare Turnstile (`/contact`) |
+| `TURNSTILE_SECRET_KEY` | Clave secreta para verificación server-side de Turnstile |
+| `WEB3FORMS_ACCESS_KEY` | Clave de acceso de Web3Forms para envío de correo |
 
 ## Architecture
 
@@ -86,6 +104,8 @@ El middleware (`src/middleware.ts`) se ejecuta en cada request y:
 3. Inyecta los headers de seguridad en la response: CSP con nonce, HSTS, X-Frame-Options, etc.
 
 Los layouts consumen `Astro.locals.cspNonce` para exponerlo via `<meta name="csp-nonce">`. Si se añaden scripts inline en un componente, deben incluir `nonce={Astro.locals.cspNonce}`.
+
+La CSP incluye `https://challenges.cloudflare.com` en `script-src` y `frame-src` para el widget de Cloudflare Turnstile. Los fetch a APIs externas desde el servidor (Turnstile verify, Web3Forms) no requieren cambios en `connect-src` ya que ocurren server-side.
 
 ### Content Layer API (Astro 6)
 
@@ -122,6 +142,30 @@ El `wrangler.toml` usa `compatibility_flags = ["nodejs_compat"]` que es necesari
 Bindings configurados automáticamente por el adapter (mensajes al iniciar el build):
 - `IMAGES` — Cloudflare Images (imagen processing)
 - `SESSION` — KV binding para sesiones
+
+### Páginas del sitio
+
+| Ruta | Archivo | Notas |
+|---|---|---|
+| `/` | `pages/index.astro` | Homepage con secciones de todas las colecciones |
+| `/events` | `pages/events/index.astro` | Listado con filtros y paginación |
+| `/events/[slug]` | `pages/events/[slug].astro` | Detalle; CTA condicional futuro/pasado |
+| `/leagues` | `pages/leagues/index.astro` | Listado con filtros mes/año/formato |
+| `/leagues/[slug]` | `pages/leagues/[slug].astro` | Detalle |
+| `/stores` | `pages/stores/index.astro` | Listado con filtro por ciudad |
+| `/sites` | `pages/sites/index.astro` | Grid activos + sección inactivos |
+| `/blog` | `pages/blog/index.astro` | Listado con chip-filters de tags |
+| `/blog/[slug]` | `pages/blog/[slug].astro` | Detalle con prose |
+| `/decks` | `pages/decks/index.astro` | Listado con 4 filtros |
+| `/decks/[slug]` | `pages/decks/[slug].astro` | Detalle con CTA externo |
+| `/contact` | `pages/contact.astro` | Formulario POST server-side; Turnstile + Web3Forms |
+
+#### Patrón formulario de contacto (`/contact`)
+
+La página maneja GET y POST en el mismo archivo Astro:
+- **GET**: renderiza el formulario con `TURNSTILE_SITE_KEY` inyectado server-side
+- **POST**: verifica el token Turnstile contra `challenges.cloudflare.com/turnstile/v0/siteverify`, luego envía a `api.web3forms.com/submit` — ambas claves secretas nunca llegan al cliente
+- El script del widget se carga con `<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>` (permitido por la CSP)
 
 ### Path Alias
 
