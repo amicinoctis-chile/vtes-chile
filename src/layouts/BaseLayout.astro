@@ -2,6 +2,7 @@
 import Font from 'astro/components/Font.astro';
 import '@/styles/global.css';
 import Footer from '@/components/global/Footer.astro';
+import Logo from '@/assets/logo-vtes-chile.svg'
 
 interface Props {
   /** Título de la página (se añade "— VTES Chile" automáticamente) */
@@ -16,7 +17,7 @@ interface Props {
 
 const {
   title,
-  description = 'Comunidad chilena de Vampire: The Eternal Struggle — torneos, ligas, noticias y más.',
+  description = 'Comunidad chilena de Vampire: The Eternal Struggle — eventos, ligas, noticias y más.',
   ogImage = '/og-default.png',
   ogType = 'website',
 } = Astro.props;
@@ -30,11 +31,12 @@ const ogImageUrl = new URL(ogImage, Astro.url.origin).href;
 const navLinks = [
   { href: '/', label: 'Inicio' },
   { href: '/events', label: 'Eventos' },
-  { href: '/ligas', label: 'Ligas' },
-  { href: '/tiendas', label: 'Tiendas' },
-  { href: '/comunidad', label: 'Comunidad' },
+  { href: '/leagues', label: 'Ligas' },
+  { href: '/stores', label: 'Tiendas' },
+  { href: '/sites', label: 'Comunidad' },
   { href: '/blog', label: 'Blog' },
   { href: '/decks', label: 'Decks' },
+  { href: '/contact', label: 'Contacto' },
 ] as const;
 
 const currentPath = Astro.url.pathname;
@@ -88,12 +90,7 @@ function isActive(href: string): boolean {
 
           <!-- Logo -->
           <a href="/" class="flex items-center shrink-0 group" aria-label="VTES Chile — Inicio">
-            <img
-              src="/logo-vtes-chile.svg"
-              alt="VTES Chile"
-              class="h-9 w-auto transition-opacity group-hover:opacity-80"
-              loading="eager"
-            />
+            <Logo width=auto height={12} fill="currentColor"/>
           </a>
 
           <!-- Links de escritorio -->
