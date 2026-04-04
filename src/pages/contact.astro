@@ -1,0 +1,213 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { env } from 'cloudflare:workers';
+
+const cfEnv = env as Record<string, string | undefined>;
+const turnstileSiteKey = cfEnv.TURNSTILE_SITE_KEY ?? '';
+
+let formState: 'idle' | 'success' | 'error' = 'idle';
+let errorMessage = '';
+
+// Preservar valores del formulario para repoblar en caso de error
+let formValues = { nombre: '', correo: '', tema: '', mensaje: '' };
+
+if (Astro.request.method === 'POST') {
+  const data = await Astro.request.formData();
+  const nombre  = String(data.get('nombre')  ?? '').trim();
+  const correo  = String(data.get('correo')  ?? '').trim();
+  const tema    = String(data.get('tema')    ?? '').trim();
+  const mensaje = String(data.get('mensaje') ?? '').trim();
+  const cfToken = String(data.get('cf-turnstile-response') ?? '');
+
+  formValues = { nombre, correo, tema, mensaje };
+
+  // 1. Verificar Turnstile (server-side — TURNSTILE_SECRET_KEY nunca sale al cliente)
+  const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      secret: cfEnv.TURNSTILE_SECRET_KEY ?? '',
+      response: cfToken,
+    }),
+  });
+  const verifyData = await verifyRes.json() as { success: boolean };
+
+  if (!verifyData.success) {
+    formState = 'error';
+    errorMessage = 'La verificación de seguridad falló. Por favor, intenta de nuevo.';
+  } else {
+    // 2. Enviar via Web3Forms (WEB3FORMS_ACCESS_KEY nunca se expone en el HTML)
+    const web3Res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        access_key: cfEnv.WEB3FORMS_ACCESS_KEY ?? '',
+        subject: `[VTES Chile] ${tema}`,
+        from_name: nombre,
+        email: correo,
+        message: `Tema: ${tema}\n\n${mensaje}`,
+      }),
+    });
+    const web3Data = await web3Res.json() as { success: boolean };
+
+    if (web3Data.success) {
+      formState = 'success';
+    } else {
+      formState = 'error';
+      errorMessage = 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
+    }
+  }
+}
+
+const temas = [
+  'Aprender a jugar',
+  'Publicar un evento, blog o deck',
+  'Consultar sobre evento',
+  'Borrar información',
+  'Consulta general',
+] as const;
+
+const inputClass =
+  'w-full bg-night-900 border border-night-700 text-night-100 rounded-sm px-4 py-2.5 text-sm placeholder:text-night-600 focus:outline-none focus:border-blood-600 transition-colors';
+---
+
+<BaseLayout
+  title="Contacto"
+  description="Contáctanos para consultas, publicaciones o cualquier tema relacionado con la comunidad VTES Chile."
+>
+  <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-16">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="mb-8 text-sm text-night-500">
+      <a href="/" class="hover:text-night-300 transition-colors">Inicio</a>
+      <span class="mx-2">/</span>
+      <span class="text-night-300">Contacto</span>
+    </nav>
+
+    <header class="mb-10">
+      <h1 class="font-serif text-4xl font-bold text-night-50">Contacto</h1>
+      <p class="mt-2 text-night-400">
+        ¿Tienes preguntas, quieres publicar contenido o necesitas ayuda? Escríbenos.
+      </p>
+    </header>
+
+    <!-- Estado de éxito -->
+    {formState === 'success' && (
+      <div class="border border-night-700 bg-night-900/50 rounded-sm p-8 text-center">
+        <p class="text-lg font-semibold text-night-100 mb-2">¡Mensaje enviado!</p>
+        <p class="text-night-400 text-sm mb-6">
+          Gracias por escribirnos. Te responderemos a la brevedad.
+        </p>
+        <a
+          href="/"
+          class="inline-flex items-center gap-2 px-5 py-2.5 bg-blood-700 hover:bg-blood-600 text-night-50 text-sm font-semibold rounded-sm transition-colors"
+        >
+          ← Volver al inicio
+        </a>
+      </div>
+    )}
+
+    <!-- Formulario -->
+    {formState !== 'success' && (
+      <form method="POST" action="" class="flex flex-col gap-6" novalidate>
+
+        <!-- Error global -->
+        {formState === 'error' && (
+          <div
+            role="alert"
+            class="border border-blood-800 bg-blood-950/30 rounded-sm px-4 py-3 text-sm text-blood-400"
+          >
+            {errorMessage}
+          </div>
+        )}
+
+        <!-- Nombre -->
+        <div class="flex flex-col gap-1.5">
+          <label for="nombre" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+            Nombre <span class="text-blood-500">*</span>
+          </label>
+          <input
+            id="nombre"
+            type="text"
+            name="nombre"
+            required
+            autocomplete="name"
+            value={formValues.nombre}
+            placeholder="Tu nombre"
+            class={inputClass}
+          />
+        </div>
+
+        <!-- Correo electrónico -->
+        <div class="flex flex-col gap-1.5">
+          <label for="correo" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+            Correo electrónico <span class="text-blood-500">*</span>
+          </label>
+          <input
+            id="correo"
+            type="email"
+            name="correo"
+            required
+            autocomplete="email"
+            value={formValues.correo}
+            placeholder="tu@correo.com"
+            class={inputClass}
+          />
+        </div>
+
+        <!-- Tema -->
+        <div class="flex flex-col gap-1.5">
+          <label for="tema" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+            Tema <span class="text-blood-500">*</span>
+          </label>
+          <select
+            id="tema"
+            name="tema"
+            required
+            class={inputClass}
+          >
+            <option value="" disabled selected={formValues.tema === ''}>Selecciona un tema</option>
+            {temas.map(t => (
+              <option value={t} selected={formValues.tema === t}>{t}</option>
+            ))}
+          </select>
+        </div>
+
+        <!-- Mensaje -->
+        <div class="flex flex-col gap-1.5">
+          <label for="mensaje" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+            Mensaje <span class="text-blood-500">*</span>
+          </label>
+          <textarea
+            id="mensaje"
+            name="mensaje"
+            required
+            rows={6}
+            placeholder="Escribe tu mensaje aquí..."
+            class={`${inputClass} resize-y`}
+          >{formValues.mensaje}</textarea>
+        </div>
+
+        <!-- Turnstile widget -->
+        <div>
+          <div class="cf-turnstile" data-sitekey={turnstileSiteKey}></div>
+        </div>
+
+        <!-- Submit -->
+        <div>
+          <button
+            type="submit"
+            class="px-6 py-3 bg-blood-700 hover:bg-blood-600 text-night-50 font-semibold text-sm rounded-sm transition-colors"
+          >
+            Enviar mensaje
+          </button>
+        </div>
+
+      </form>
+    )}
+
+  </div>
+
+  <!-- Script de Cloudflare Turnstile -->
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</BaseLayout>

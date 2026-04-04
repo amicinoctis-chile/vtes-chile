@@ -24,7 +24,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}'`,
+    `script-src 'self' 'nonce-${nonce}' https://challenges.cloudflare.com`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self'",
@@ -32,6 +32,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
+    "frame-src https://challenges.cloudflare.com",
     "frame-ancestors 'none'",
     "upgrade-insecure-requests",
   ].join('; ');
