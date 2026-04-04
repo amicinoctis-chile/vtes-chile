@@ -9,7 +9,7 @@ const tagParam     = Astro.url.searchParams.get('tag')        ?? '';
 const paginaParam  = parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10);
 const PER_PAGE = 9;
 
-const allDecks = await getCollection('decks');
+const allDecks = await getCollection('decks', ({ data }) => !data.draft);
 allDecks.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
 
 const allClans       = [...new Set(allDecks.flatMap(d => d.data.clan))].sort();
