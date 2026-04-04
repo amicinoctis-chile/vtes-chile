@@ -17,7 +17,7 @@ const blog = defineCollection({
   }),
 });
 
-/** Torneos y eventos */
+/** Eventos */
 const events = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/events' }),
   schema: z.object({

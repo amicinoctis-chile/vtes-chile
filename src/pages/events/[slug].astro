@@ -38,7 +38,7 @@ const { Content } = await render(entry);
 
     <!-- Breadcrumb -->
     <nav aria-label="Breadcrumb" class="mb-8 text-sm text-night-500">
-      <a href="/events" class="hover:text-night-300 transition-colors">Torneos</a>
+      <a href="/events" class="hover:text-night-300 transition-colors">Eventos</a>
       <span class="mx-2">/</span>
       <span class="text-night-300">{event.title}</span>
     </nav>
@@ -112,7 +112,7 @@ const { Content } = await render(entry);
           rel="noopener noreferrer"
           class="inline-flex items-center gap-2 px-6 py-3 bg-blood-700 hover:bg-blood-600 text-night-50 font-semibold rounded-sm transition-colors"
         >
-          Inscribirse al torneo ↗
+          Inscribirse al evento ↗
         </a>
       )}
       {isPast && event.resultsUrl && (
@@ -140,7 +140,7 @@ const { Content } = await render(entry);
         href="/events"
         class="text-sm text-blood-500 hover:text-blood-400 transition-colors"
       >
-        ← Volver a torneos
+        ← Volver a eventos
       </a>
     </div>
 

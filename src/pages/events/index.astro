@@ -53,13 +53,13 @@ const buildPageUrl = (p: number) => {
 ---
 
 <BaseLayout
-  title="Torneos"
-  description="Listado de torneos y eventos de Vampire: The Eternal Struggle en Chile."
+  title="Eventos"
+  description="Listado de eventos de Vampire: The Eternal Struggle en Chile."
 >
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
 
     <header class="mb-10">
-      <h1 class="font-serif text-4xl font-bold text-night-50">Torneos</h1>
+      <h1 class="font-serif text-4xl font-bold text-night-50">Eventos</h1>
       <p class="mt-2 text-night-400">Todos los eventos de VTES en Chile.</p>
     </header>
 
@@ -151,16 +151,16 @@ const buildPageUrl = (p: number) => {
                   {event.data.title}
                 </a>
               </h2>
-              <p class="text-sm text-night-400">{event.data.city} · {event.data.format}</p>
+              <p class="text-sm text-night-400 capitalize">{event.data.city} · {event.data.format}</p>
               <p class="text-sm font-medium text-gold-400">{formatCLP(event.data.entryFee)}</p>
-              <p class="text-xs text-night-500">Proxies: {proxyLabel(event.data.proxyesAllowed)}</p>
+              <p class="text-xs text-night-500 capitalize">Proxies: {proxyLabel(event.data.proxyesAllowed)}</p>
             </article>
           </li>
         ))}
       </ul>
     ) : (
       <p class="text-night-500 py-12 text-center">
-        No hay torneos {tipoParam === 'proximos' ? 'próximos' : 'pasados'}
+        No hay eventos {tipoParam === 'proximos' ? 'próximos' : 'pasados'}
         {formatParam ? ` con formato ${formatParam}` : ''}.
       </p>
     )}
