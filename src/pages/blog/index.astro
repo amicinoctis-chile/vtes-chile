@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import BlogImage from '@/components/ui/BlogImage.astro';
 
 const tagParam = Astro.url.searchParams.get('tag') ?? '';
 const paginaParam = parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10);
@@ -79,11 +80,10 @@ const buildPageUrl = (p: number) => {
           <li>
             <article class="border border-night-800 bg-night-900/50 rounded-sm overflow-hidden hover:border-blood-800 transition-colors flex flex-col h-full">
               {post.data.img && (
-                <img
-                  src={`/images/blog/${post.data.img}`}
-                  alt={post.data.title}
-                  class="w-full h-40 object-cover"
-                  loading="lazy"
+                <BlogImage
+                  img={post.data.img}
+                  alt={post.data.description}
+                  class="w-16 h-16 object-contain rounded-sm"
                 />
               )}
               <div class="p-5 flex flex-col gap-2 flex-1">

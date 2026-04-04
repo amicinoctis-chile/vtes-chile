@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getEntry, render } from 'astro:content';
+import BlogImage from '@/components/ui/BlogImage.astro';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/blog');
@@ -63,11 +64,10 @@ const formatDate = (s: string) =>
 
     <!-- Imagen de portada -->
     {post.img && (
-      <img
-        src={`/images/blog/${post.img}`}
-        alt={post.title}
-        class="w-full max-h-80 object-cover rounded-sm mb-10"
-        loading="eager"
+      <BlogImage
+        img={post.img}
+        alt={post.description}
+        class="w-16 h-16 object-contain rounded-sm"
       />
     )}
 
