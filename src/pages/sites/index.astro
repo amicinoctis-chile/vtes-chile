@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import SiteImage from '@/components/ui/SiteImage.astro';
 
 const allSites = await getCollection('sites');
 
@@ -31,11 +32,10 @@ const inactiveSites = allSites
           <li>
             <article class="border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-3 h-full">
               {site.data.img && (
-                <img
-                  src={`/images/sites/${site.data.img}`}
+                <SiteImage
+                  img={site.data.img}
                   alt={site.data.name}
-                  class="w-12 h-12 object-contain rounded-sm"
-                  loading="lazy"
+                  class="w-16 h-16 object-contain rounded-sm"
                 />
               )}
               <div>
@@ -72,11 +72,10 @@ const inactiveSites = allSites
             <li>
               <article class="border border-night-800 bg-night-900/30 rounded-sm p-5 opacity-60 flex flex-col gap-3 h-full">
                 {site.data.img && (
-                  <img
-                    src={`/images/sites/${site.data.img}`}
+                  <SiteImage
+                    img={site.data.img}
                     alt={site.data.name}
-                    class="w-12 h-12 object-contain rounded-sm"
-                    loading="lazy"
+                    class="w-16 h-16 object-contain rounded-sm"
                   />
                 )}
                 <div>
