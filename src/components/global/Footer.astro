@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import darkpackLogo from '@/assets/DarkPack_Logo2.png';
+import footerImage from '@/assets/footer-image.jpg';
 import Logo from '@/assets/logo-vtes-chile.svg'
 
 const footerNavs = [
@@ -30,9 +31,16 @@ const footerNavs = [
 ---
 
 <footer class="mt-24 border-t border-night-800/60 bg-night-950">
+  <Image
+    src={footerImage}
+    alt=""
+    role="presentation"
+    class="w-full object-cover max-h-3/4"
+    loading="lazy"
+  />
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
 
       <!-- Branding -->
       <div>
@@ -46,23 +54,41 @@ const footerNavs = [
 
       <!-- Nav groups -->
       {footerNavs.map(group => (
-        <div>
-          <h4 class="text-sm font-semibold text-night-100 mb-4 tracking-wide uppercase">
-            {group.title}
-          </h4>
-          <ul class="space-y-2">
-            {group.items.map(item => (
-              <li>
+        group.title === 'Contacto' ? (
+          <div>
+            <h4 class="font-serif text-sm font-semibold text-night-100 mb-4 tracking-wide uppercase">
+              {group.title}
+            </h4>
+            <address class="not-italic space-y-2">
+              {group.items.map(item => (
                 <a
                   href={item.href}
-                  class="text-sm text-night-400 hover:text-blood-500 transition-colors"
+                  class="text-sm text-night-400 hover:text-blood-500 transition-colors block"
                 >
                   {item.text}
                 </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+              ))}
+            </address>
+          </div>
+        ) : (
+          <nav aria-label={group.title}>
+            <h4 class="font-serif text-sm font-semibold text-night-100 mb-4 tracking-wide uppercase">
+              {group.title}
+            </h4>
+            <ul class="space-y-2">
+              {group.items.map(item => (
+                <li>
+                  <a
+                    href={item.href}
+                    class="text-sm text-night-400 hover:text-blood-500 transition-colors"
+                  >
+                    {item.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
       ))}
 
     </div>
@@ -70,35 +96,36 @@ const footerNavs = [
     <!-- Bottom bar -->
     <div class="border-t border-night-800/60 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
 
-      <a
-        href="https://www.paradoxinteractive.com/games/vampire-the-masquerade/dark-pack"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Dark Pack — Paradox Interactive"
-        class="opacity-50 hover:opacity-75 transition-opacity shrink-0"
-      >
-        <Image
-          src={darkpackLogo}
-          alt="Dark Pack"
-          width={64}
-          height={64}
-          class="w-16 h-16 object-contain"
-          loading="lazy"
-        />
-      </a>
-
-      <p class="text-xs text-night-700 text-center md:text-right max-w-prose leading-relaxed">
-        Sitio fan no oficial. Vampire: The Eternal Struggle, el Mundo de Tinieblas y sus personajes
-        son marcas registradas de{' '}
+      <div class="flex items-center gap-4 shrink-0">
         <a
-          href="https://www.paradoxinteractive.com"
+          href="https://www.paradoxinteractive.com/games/vampire-the-masquerade/dark-pack"
           target="_blank"
           rel="noopener noreferrer"
-          class="hover:text-night-500 transition-colors underline underline-offset-2"
+          aria-label="Dark Pack — Paradox Interactive"
+          class="opacity-50 hover:opacity-75 transition-opacity"
         >
-          Paradox Interactive AB
-        </a>.
-        Contenido creado bajo los términos del Dark Pack.
+          <Image
+            src={darkpackLogo}
+            alt="Dark Pack"
+            width={64}
+            height={64}
+            class="w-16 h-16 object-contain"
+            loading="lazy"
+          />
+        </a>
+      </div>
+
+      <p class="text-xs text-night-700 text-center md:text-right max-w-prose leading-relaxed">
+        Partes de los materiales utilizados son derechos de autor y marcas
+        registradas de Paradox Interactive AB, y se utilizan con permiso.
+        Todos los derechos reservados. Para obtener más información, visita
+        <a
+          href="https://www.worldofdarkness.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:text-gray-300 underline">
+            worldofdarkness.com
+        </a>
       </p>
 
     </div>
