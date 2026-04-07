@@ -12,6 +12,7 @@ today.setHours(0, 0, 0, 0);
 
 const validFormats = ['V5', 'standard', 'storyline', 'limited', 'casual'] as const;
 type EventFormat = typeof validFormats[number];
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 let allEvents = await getCollection('events');
 
@@ -106,7 +107,7 @@ const buildPageUrl = (p: number) => {
         >
           <option value="" selected={formatParam === ''}>Todos los formatos</option>
           {validFormats.map(f => (
-            <option value={f} selected={formatParam === f}>{f}</option>
+            <option value={f} selected={formatParam === f}>{capitalize(f)}</option>
           ))}
         </select>
       </div>
@@ -152,7 +153,7 @@ const buildPageUrl = (p: number) => {
                 </a>
               </h2>
               <p class="text-sm text-night-400 capitalize">{event.data.city} · {event.data.format}</p>
-              <p class="text-sm font-medium text-gold-400">{formatCLP(event.data.entryFee)}</p>
+              <p class="text-sm font-medium text-gold-500">{formatCLP(event.data.entryFee)}</p>
               <p class="text-xs text-night-500 capitalize">Proxies: {proxyLabel(event.data.proxyesAllowed)}</p>
             </article>
           </li>

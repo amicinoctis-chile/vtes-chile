@@ -70,7 +70,7 @@ const latestDecks = (await getCollection('decks', ({ data }) => !data.draft))
             <p class="mt-1 text-sm text-night-400 capitalize">
               {event.data.city} · {event.data.format}
             </p>
-            <p class="mt-2 text-sm font-medium text-gold-400">
+            <p class="mt-2 text-sm font-medium text-gold-500">
               {formatCLP(event.data.entryFee)}
             </p>
           </li>
@@ -100,7 +100,7 @@ const latestDecks = (await getCollection('decks', ({ data }) => !data.draft))
             <p class="mt-1 text-sm text-night-400 capitalize">
               {league.data.format} · Proxies: {league.data.proxyesAllowed}
             </p>
-            <p class="mt-2 text-sm font-medium text-gold-400">
+            <p class="mt-2 text-sm font-medium text-gold-500">
               {formatCLP(league.data.entryFee)}
             </p>
           </li>

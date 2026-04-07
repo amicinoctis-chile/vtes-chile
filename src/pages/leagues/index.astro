@@ -19,6 +19,7 @@ const proxyLabel = (v: string) =>
 
 const validFormats = ['V5', 'standard', 'storyline', 'limited', 'casual'] as const;
 type LeagueFormat = typeof validFormats[number];
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const dayOrder = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
 
@@ -129,7 +130,7 @@ const buildPageUrl = (p: number) => {
         >
           <option value="">Todos los formatos</option>
           {validFormats.map(f => (
-            <option value={f} selected={formatoParam === f}>{f}</option>
+            <option value={f} selected={formatoParam === f}>{capitalize(f)}</option>
           ))}
         </select>
       </div>
@@ -177,7 +178,7 @@ const buildPageUrl = (p: number) => {
                 </a>
               </h2>
               <p class="text-sm text-night-400">{league.data.city} · {league.data.format}</p>
-              <p class="text-sm font-medium text-gold-400">{formatCLP(league.data.entryFee)}</p>
+              <p class="text-sm font-medium text-gold-500">{formatCLP(league.data.entryFee)}</p>
               <p class="text-xs text-night-500">Proxies: {proxyLabel(league.data.proxyesAllowed)}</p>
             </article>
           </li>
