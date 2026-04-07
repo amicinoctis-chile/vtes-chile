@@ -3,39 +3,20 @@ import { Image } from 'astro:assets';
 import HeroImage from '@/assets/hero-image.jpg';
 ---
 
-<section class="relative overflow-hidden min-h-[70vh] md:min-h-[80vh]">
-  <div class="grid grid-cols-1 md:grid-cols-2 h-full min-h-[inherit]">
+<section class="relative overflow-hidden min-h-150">
+  <div class="grid grid-cols-1 md:grid-cols-2 min-h-150">
 
     <!-- Columna izquierda: texto -->
     <div class="relative flex items-center z-10">
-      <!-- Overlay mobile (imagen de fondo) -->
-      <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/50 md:hidden pointer-events-none"></div>
 
       <div class="w-full px-6 md:px-10 lg:px-16 py-20 md:py-16 relative">
-        <p class="mb-3 text-xs font-medium tracking-[0.2em] uppercase text-blood-500">
-          Comunidad Chilena · Mundo de Tinieblas
-        </p>
         <h1 class="font-serif text-3xl lg:text-5xl xl:text-6xl font-bold text-night-50 leading-tight">
           Vampire:<br />
-          <span class="text-blood-500">The Eternal Struggle</span>
+          <span class="text-blood-600">The Eternal Struggle</span>
         </h1>
         <p class="mt-4 text-lg text-night-300 max-w-md">
           Comunidad Chilena de Vampire: the Eternal Struggle
         </p>
-        <div class="mt-10 flex flex-col sm:flex-row gap-4">
-          <a
-            href="/events"
-            class="inline-flex items-center justify-center px-7 py-3 bg-blood-700 hover:bg-blood-600 text-night-50 font-semibold rounded-sm transition-colors"
-          >
-            Ver Eventos
-          </a>
-          <a
-            href="/sites"
-            class="inline-flex items-center justify-center px-7 py-3 border border-night-700 hover:border-night-500 text-night-200 font-semibold rounded-sm transition-colors"
-          >
-            Ver Comunidad
-          </a>
-        </div>
       </div>
     </div>
 
@@ -44,10 +25,12 @@ import HeroImage from '@/assets/hero-image.jpg';
       <Image
         src={HeroImage}
         alt="Vampire alimentandose en un callejon - Arte de Vampiro La Mascarada"
-        class="w-full h-full object-cover object-top md:object-contain md:max-h-[80vh]"
+        class="w-full h-full object-cover object-top md:object-contain"
       />
       <!-- Degradado lateral desktop: funde imagen con columna izquierda -->
-      <div class="absolute inset-0 bg-gradient-to-r from-night-950 via-transparent to-transparent pointer-events-none hidden md:block"></div>
+      <div class="absolute inset-0 bg-linear-to-r from-night-950 via-transparent to-transparent pointer-events-none hidden md:block"></div>
+      <!-- Overlay mobile: mejora contraste del texto sobre la imagen -->
+      <div class="absolute inset-0 bg-night-950/60 pointer-events-none md:hidden"></div>
     </div>
 
   </div>
