@@ -26,11 +26,16 @@ npm run cf:deploy    # deploy a Cloudflare Pages
 
 ```
 src/
-├── assets/             # imágenes optimizadas por <Image> (e.g. DarkPack_Logo2.png)
+├── assets/             # imágenes optimizadas por <Image> (e.g. DarkPack_Logo2.png, footer-image.jpg)
 ├── content.config.ts   # esquemas Zod de todas las Content Collections
 ├── env.d.ts            # referencias a tipos de Astro y @astrojs/cloudflare
 ├── middleware.ts       # CSP nonce + security headers, se ejecuta en cada request
 ├── types.d.ts          # App.Locals — expone cspNonce tipado al resto de la app
+├── components/
+│   ├── global/
+│   │   ├── Header.astro    # navegación sticky con logo y toggle mobile
+│   │   └── Footer.astro    # footer con navegación, branding y disclaimer legal
+│   └── HeroSection.astro   # sección hero de la homepage
 ├── content/
 │   ├── blog/           # artículos de la comunidad (.md/.mdx)
 │   ├── decks/          # decks de referencia (.md/.mdx)
@@ -39,7 +44,7 @@ src/
 │   ├── sites/          # perfiles RRSS y comunidades (.md/.mdx)
 │   └── stores/         # tiendas donde se juega (.md/.mdx)
 ├── layouts/
-│   └── BaseLayout.astro  # layout principal: nav, footer, OG tags, Fonts API, CSP nonce
+│   └── BaseLayout.astro  # layout principal: importa Header/Footer, OG tags, Fonts API, CSP nonce
 ├── pages/              # enrutado basado en archivos (Astro file-based routing)
 └── styles/
     └── global.css      # @import "tailwindcss" + paleta blood/night/gold con @theme {}
