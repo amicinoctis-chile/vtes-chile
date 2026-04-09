@@ -1,10 +1,13 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Button from '@/components/ui/Button.astro';
+import img404 from '@/assets/404.png';
 ---
 
 <BaseLayout title="Página no encontrada" description="La página que buscas no existe.">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-32 text-center">
+    <Image src={img404} alt="" width={100} class="mx-auto" />
     <p class="text-6xl font-serif font-bold text-blood-600">404</p>
     <h1 class="mt-4 font-serif text-3xl font-bold text-marfil-50">Página no encontrada</h1>
     <p class="mt-4 text-marfil-400">La página que buscas no existe o fue movida.</p>
