@@ -35,6 +35,8 @@ src/
 │   ├── global/
 │   │   ├── Header.astro    # navegación sticky con logo y toggle mobile
 │   │   └── Footer.astro    # footer con navegación, branding y disclaimer legal
+│   ├── ui/
+│   │   └── Button.astro    # botón reutilizable (primary/outline, sm/md/lg, <a> o <button>)
 │   └── HeroSection.astro   # sección hero de la homepage
 ├── content/
 │   ├── blog/           # artículos de la comunidad (.md/.mdx)
@@ -47,7 +49,7 @@ src/
 │   └── BaseLayout.astro  # layout principal: importa Header/Footer, OG tags, Fonts API, CSP nonce
 ├── pages/              # enrutado basado en archivos (Astro file-based routing)
 └── styles/
-    └── global.css      # @import "tailwindcss" + paleta blood/night/gold con @theme {}
+    └── global.css      # @import "tailwindcss" + paleta blood/night/marfil/gold con @theme {}
 ```
 
 ## Code Conventions
@@ -132,9 +134,10 @@ Para consultar contenido: `getCollection('blog', ({ data }) => !data.draft)`.
 No hay `tailwind.config.js`. La configuración completa está en `src/styles/global.css` usando `@theme {}`. El plugin se registra en `astro.config.ts` vía `@tailwindcss/vite`.
 
 Paleta de colores personalizada disponible como clases de Tailwind:
-- `blood-{50..950}` — rojos oscuros (acción, énfasis)
-- `night-{50..950}` — grises azulados (fondos, texto)
-- `gold-{50..950}` — dorado (hover de navegación)
+- `blood-{50..950}` — rojos oscuros (acción, énfasis, hover de enlaces)
+- `night-{50..950}` — grises azulados (fondos, bordes)
+- `marfil-{50..950}` — tonos cálidos marfil (texto principal, reemplaza `night-*` para textos)
+- `gold-{50..950}` — dorado (precios, hover de navegación)
 - `ember-{50..950}` — naranjas cálidos
 - `success-{50..950}` — verdes (estados positivos)
 
