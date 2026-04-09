@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://vtes.cl/sitemap-index.xml
