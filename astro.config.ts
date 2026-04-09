@@ -1,11 +1,14 @@
 import { defineConfig, fontProviders } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
+import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
+  site: 'https://vtes.cl',
   output: 'server',
 
   adapter: cloudflare(),
+  integrations: [sitemap()],
 
   fonts: [
     {
