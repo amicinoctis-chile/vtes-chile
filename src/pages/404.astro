@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/ui/Button.astro';
 ---
 
 <BaseLayout title="Página no encontrada" description="La página que buscas no existe.">
@@ -7,11 +8,8 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     <p class="text-6xl font-serif font-bold text-blood-600">404</p>
     <h1 class="mt-4 font-serif text-3xl font-bold text-marfil-50">Página no encontrada</h1>
     <p class="mt-4 text-marfil-400">La página que buscas no existe o fue movida.</p>
-    <a
-      href="/"
-      class="mt-8 inline-block px-6 py-3 border border-blood-700 text-blood-500 hover:bg-blood-700 hover:text-marfil-50 rounded-sm transition-colors text-sm font-medium"
-    >
+    <Button href="/" variant="outline" size="md" class="mt-8">
       Volver al inicio
-    </a>
+    </Button>
   </div>
 </BaseLayout>
