@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/ui/Button.astro';
 import { env } from 'cloudflare:workers';
 
 const cfEnv = env as Record<string, string | undefined>;
@@ -68,7 +69,7 @@ const temas = [
 ] as const;
 
 const inputClass =
-  'w-full bg-night-900 border border-night-700 text-night-100 rounded-sm px-4 py-2.5 text-sm placeholder:text-night-600 focus:outline-none focus:border-blood-600 transition-colors';
+  'w-full bg-night-900 border border-night-700 text-marfil-100 rounded-sm px-4 py-2.5 text-sm placeholder:text-marfil-600 focus:outline-none focus:border-blood-600 transition-colors';
 ---
 
 <BaseLayout
@@ -78,15 +79,15 @@ const inputClass =
   <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-16">
 
     <!-- Breadcrumb -->
-    <nav aria-label="Breadcrumb" class="mb-8 text-sm text-night-500">
-      <a href="/" class="hover:text-night-300 transition-colors">Inicio</a>
+    <nav aria-label="Breadcrumb" class="mb-8 text-sm text-marfil-500">
+      <a href="/" class="hover:text-marfil-300 transition-colors">Inicio</a>
       <span class="mx-2">/</span>
-      <span class="text-night-300">Contacto</span>
+      <span class="text-marfil-300">Contacto</span>
     </nav>
 
     <header class="mb-10">
-      <h1 class="font-serif text-4xl font-bold text-night-50">Contacto</h1>
-      <p class="mt-2 text-night-400">
+      <h1 class="font-serif text-4xl font-bold text-marfil-50">Contacto</h1>
+      <p class="mt-2 text-marfil-400">
         ¿Tienes preguntas, quieres publicar contenido o necesitas ayuda? Escríbenos.
       </p>
     </header>
@@ -94,16 +95,11 @@ const inputClass =
     <!-- Estado de éxito -->
     {formState === 'success' && (
       <div class="border border-night-700 bg-night-900/50 rounded-sm p-8 text-center">
-        <p class="text-lg font-semibold text-night-100 mb-2">¡Mensaje enviado!</p>
-        <p class="text-night-400 text-sm mb-6">
+        <p class="text-lg font-semibold text-marfil-100 mb-2">¡Mensaje enviado!</p>
+        <p class="text-marfil-400 text-sm mb-6">
           Gracias por escribirnos. Te responderemos a la brevedad.
         </p>
-        <a
-          href="/"
-          class="inline-flex items-center gap-2 px-5 py-2.5 bg-blood-700 hover:bg-blood-600 text-night-50 text-sm font-semibold rounded-sm transition-colors"
-        >
-          ← Volver al inicio
-        </a>
+        <Button href="/" size="sm">← Volver al inicio</Button>
       </div>
     )}
 
@@ -123,7 +119,7 @@ const inputClass =
 
         <!-- Nombre -->
         <div class="flex flex-col gap-1.5">
-          <label for="nombre" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+          <label for="nombre" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
             Nombre <span class="text-blood-500">*</span>
           </label>
           <input
@@ -140,7 +136,7 @@ const inputClass =
 
         <!-- Correo electrónico -->
         <div class="flex flex-col gap-1.5">
-          <label for="correo" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+          <label for="correo" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
             Correo electrónico <span class="text-blood-500">*</span>
           </label>
           <input
@@ -157,7 +153,7 @@ const inputClass =
 
         <!-- Tema -->
         <div class="flex flex-col gap-1.5">
-          <label for="tema" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+          <label for="tema" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
             Tema <span class="text-blood-500">*</span>
           </label>
           <select
@@ -175,7 +171,7 @@ const inputClass =
 
         <!-- Mensaje -->
         <div class="flex flex-col gap-1.5">
-          <label for="mensaje" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+          <label for="mensaje" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
             Mensaje <span class="text-blood-500">*</span>
           </label>
           <textarea
@@ -195,12 +191,7 @@ const inputClass =
 
         <!-- Submit -->
         <div>
-          <button
-            type="submit"
-            class="px-6 py-3 bg-blood-700 hover:bg-blood-600 text-night-50 font-semibold text-sm rounded-sm transition-colors"
-          >
-            Enviar mensaje
-          </button>
+          <Button type="submit">Enviar mensaje</Button>
         </div>
 
       </form>

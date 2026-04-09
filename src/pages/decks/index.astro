@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/ui/Button.astro';
 import { getCollection } from 'astro:content';
 
 const clanParam    = Astro.url.searchParams.get('clan')       ?? '';
@@ -51,8 +52,8 @@ const buildPageUrl = (p: number) => {
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
 
     <header class="mb-10">
-      <h1 class="font-serif text-4xl font-bold text-night-50">Decks</h1>
-      <p class="mt-2 text-night-400">Decks de referencia y estrategias para VTES.</p>
+      <h1 class="font-serif text-4xl font-bold text-marfil-50">Decks</h1>
+      <p class="mt-2 text-marfil-400">Decks de referencia y estrategias para VTES.</p>
     </header>
 
     <!-- Filtros -->
@@ -60,13 +61,13 @@ const buildPageUrl = (p: number) => {
 
       {allClans.length > 0 && (
         <div class="flex flex-col gap-1">
-          <label for="clan-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+          <label for="clan-select" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
             Clan
           </label>
           <select
             id="clan-select"
             name="clan"
-            class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+            class="bg-night-900 border border-night-700 text-marfil-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
           >
             <option value="">Todos los clanes</option>
             {allClans.map(c => (
@@ -78,13 +79,13 @@ const buildPageUrl = (p: number) => {
 
       {allDisciplines.length > 0 && (
         <div class="flex flex-col gap-1">
-          <label for="disc-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+          <label for="disc-select" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
             Disciplina
           </label>
           <select
             id="disc-select"
             name="disciplina"
-            class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+            class="bg-night-900 border border-night-700 text-marfil-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
           >
             <option value="">Todas las disciplinas</option>
             {allDisciplines.map(d => (
@@ -95,13 +96,13 @@ const buildPageUrl = (p: number) => {
       )}
 
       <div class="flex flex-col gap-1">
-        <label for="formato-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+        <label for="formato-select" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
           Formato
         </label>
         <select
           id="formato-select"
           name="formato"
-          class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+          class="bg-night-900 border border-night-700 text-marfil-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
         >
           <option value="">Todos los formatos</option>
           {formats.map(f => (
@@ -112,13 +113,13 @@ const buildPageUrl = (p: number) => {
 
       {allTags.length > 0 && (
         <div class="flex flex-col gap-1">
-          <label for="tag-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+          <label for="tag-select" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
             Tag
           </label>
           <select
             id="tag-select"
             name="tag"
-            class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+            class="bg-night-900 border border-night-700 text-marfil-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
           >
             <option value="">Todos los tags</option>
             {allTags.map(t => (
@@ -129,16 +130,11 @@ const buildPageUrl = (p: number) => {
       )}
 
       <div class="flex items-end gap-3">
-        <button
-          type="submit"
-          class="px-4 py-2 bg-blood-700 hover:bg-blood-600 text-night-50 text-sm font-semibold rounded-sm transition-colors"
-        >
-          Filtrar
-        </button>
+        <Button type="submit" size="sm">Filtrar</Button>
         {hasActiveFilters && (
           <a
             href="/decks"
-            class="px-4 py-2 text-sm text-night-400 hover:text-night-200 transition-colors"
+            class="px-4 py-2 text-sm text-marfil-400 hover:text-marfil-200 transition-colors"
           >
             Limpiar filtros
           </a>
@@ -152,41 +148,41 @@ const buildPageUrl = (p: number) => {
       <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {decks.map(deck => (
           <li>
-            <article class="border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-3 h-full">
+            <article class="border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-3 h-full relative">
               <div class="flex items-center justify-between">
-                <span class="text-xs text-night-500 font-medium uppercase tracking-wide border border-night-700 rounded-sm px-2 py-0.5">
+                <span class="text-xs text-marfil-500 font-medium uppercase tracking-wide border border-night-700 rounded-sm px-2 py-0.5">
                   {deck.data.format}
                 </span>
-                <time datetime={deck.data.pubDate} class="text-xs text-night-600">
+                <time datetime={deck.data.pubDate} class="text-xs text-marfil-600">
                   {formatDate(deck.data.pubDate)}
                 </time>
               </div>
-              <h2 class="text-night-100 font-semibold leading-snug">
+              <h2 class="text-marfil-100 font-semibold leading-snug">
                 <a
                   href={`/decks/${deck.id}`}
-                  class="hover:text-blood-400 transition-colors"
+                  class="hover:text-blood-600 transition-colors after:absolute after:inset-0 after:content-['']"
                 >
                   {deck.data.title}
                 </a>
               </h2>
-              <p class="text-sm text-night-400 line-clamp-2 flex-1">{deck.data.description}</p>
+              <p class="text-sm text-marfil-400 line-clamp-2 flex-1">{deck.data.description}</p>
               {deck.data.clan.length > 0 && (
-                <p class="text-xs text-night-500">
-                  <span class="text-night-600">Clan:</span> {deck.data.clan.join(', ')}
+                <p class="text-xs text-marfil-500">
+                  <span class="text-marfil-600">Clan:</span> {deck.data.clan.join(', ')}
                 </p>
               )}
               {deck.data.discipline.length > 0 && (
-                <p class="text-xs text-night-500">
-                  <span class="text-night-600">Disciplinas:</span> {deck.data.discipline.join(', ')}
+                <p class="text-xs text-marfil-500">
+                  <span class="text-marfil-600">Disciplinas:</span> {deck.data.discipline.join(', ')}
                 </p>
               )}
-              <p class="text-xs text-night-600">Por {deck.data.author}</p>
+              <p class="text-xs text-marfil-600">Por {deck.data.author}</p>
               {deck.data.tags.length > 0 && (
                 <div class="flex flex-wrap gap-1 mt-auto">
                   {deck.data.tags.map(tag => (
                     <a
                       href={`/decks?tag=${encodeURIComponent(tag)}`}
-                      class="text-xs text-night-600 hover:text-night-400 transition-colors"
+                      class="text-xs text-marfil-600 hover:text-marfil-400 transition-colors relative z-10"
                     >
                       #{tag}
                     </a>
@@ -198,7 +194,7 @@ const buildPageUrl = (p: number) => {
         ))}
       </ul>
     ) : (
-      <p class="text-night-500 py-12 text-center">
+      <p class="text-marfil-500 py-12 text-center">
         {hasActiveFilters
           ? 'No hay decks con los filtros seleccionados.'
           : 'No hay decks registrados.'}
@@ -214,27 +210,27 @@ const buildPageUrl = (p: number) => {
         {page > 1 ? (
           <a
             href={buildPageUrl(page - 1)}
-            class="px-4 py-2 border border-night-700 text-night-300 hover:border-night-500 hover:text-night-100 rounded-sm transition-colors"
+            class="px-4 py-2 border border-night-700 text-marfil-300 hover:border-night-500 hover:text-marfil-100 rounded-sm transition-colors"
           >
             ← Anterior
           </a>
         ) : (
-          <span class="px-4 py-2 border border-night-800 text-night-700 rounded-sm cursor-not-allowed">
+          <span class="px-4 py-2 border border-night-800 text-marfil-700 rounded-sm cursor-not-allowed">
             ← Anterior
           </span>
         )}
 
-        <span class="text-night-400">Página {page} de {totalPages}</span>
+        <span class="text-marfil-400">Página {page} de {totalPages}</span>
 
         {page < totalPages ? (
           <a
             href={buildPageUrl(page + 1)}
-            class="px-4 py-2 border border-night-700 text-night-300 hover:border-night-500 hover:text-night-100 rounded-sm transition-colors"
+            class="px-4 py-2 border border-night-700 text-marfil-300 hover:border-night-500 hover:text-marfil-100 rounded-sm transition-colors"
           >
             Siguiente →
           </a>
         ) : (
-          <span class="px-4 py-2 border border-night-800 text-night-700 rounded-sm cursor-not-allowed">
+          <span class="px-4 py-2 border border-night-800 text-marfil-700 rounded-sm cursor-not-allowed">
             Siguiente →
           </span>
         )}

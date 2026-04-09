@@ -25,10 +25,10 @@ const formatDate = (s: string) =>
   <article class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-16">
 
     <!-- Breadcrumb -->
-    <nav aria-label="Breadcrumb" class="mb-8 text-sm text-night-500">
-      <a href="/blog" class="hover:text-night-300 transition-colors">Blog</a>
+    <nav aria-label="Breadcrumb" class="mb-8 text-sm text-marfil-500">
+      <a href="/blog" class="hover:text-marfil-300 transition-colors">Blog</a>
       <span class="mx-2">/</span>
-      <span class="text-night-300">{post.title}</span>
+      <span class="text-marfil-300">{post.title}</span>
     </nav>
 
     <!-- Cabecera -->
@@ -45,11 +45,11 @@ const formatDate = (s: string) =>
           ))}
         </div>
       )}
-      <h1 class="font-serif text-4xl lg:text-5xl font-bold text-night-50 leading-tight">
+      <h1 class="font-serif text-4xl lg:text-5xl font-bold text-marfil-50 leading-tight">
         {post.title}
       </h1>
-      <p class="mt-4 text-lg text-night-300">{post.description}</p>
-      <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-night-500 border-t border-night-900 pt-6">
+      <p class="mt-4 text-lg text-marfil-300">{post.description}</p>
+      <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-marfil-500 border-t border-night-900 pt-6">
         <span>{post.author}</span>
         <time datetime={post.pubDate}>
           {formatDate(post.pubDate)}
@@ -73,10 +73,10 @@ const formatDate = (s: string) =>
 
     <!-- Contenido markdown -->
     <div class="prose prose-invert prose-sm max-w-none
-                prose-headings:font-serif prose-headings:text-night-100
+                prose-headings:font-serif prose-headings:text-marfil-100
                 prose-a:text-blood-500 prose-a:no-underline hover:prose-a:text-blood-400
-                prose-strong:text-night-200
-                prose-blockquote:border-l-blood-800 prose-blockquote:text-night-400">
+                prose-strong:text-marfil-200
+                prose-blockquote:border-l-blood-800 prose-blockquote:text-marfil-400">
       <Content />
     </div>
 

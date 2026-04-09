@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/ui/Button.astro';
 import { getEntry, render } from 'astro:content';
 
 const { slug } = Astro.params;
@@ -31,10 +32,10 @@ const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
   <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16">
 
     <!-- Breadcrumb -->
-    <nav aria-label="Breadcrumb" class="mb-8 text-sm text-night-500">
-      <a href="/leagues" class="hover:text-night-300 transition-colors">Ligas</a>
+    <nav aria-label="Breadcrumb" class="mb-8 text-sm text-marfil-500">
+      <a href="/leagues" class="hover:text-marfil-300 transition-colors">Ligas</a>
       <span class="mx-2">/</span>
-      <span class="text-night-300">{league.title}</span>
+      <span class="text-marfil-300">{league.title}</span>
     </nav>
 
     <!-- Cabecera -->
@@ -42,62 +43,62 @@ const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
       <p class="text-xs text-blood-500 font-medium tracking-wide uppercase mb-2">
         {capitalize(league.day)} · {league.hour} — {MONTH_NAMES[league.month]} {league.year}
       </p>
-      <h1 class="font-serif text-4xl lg:text-5xl font-bold text-night-50 leading-tight">
+      <h1 class="font-serif text-4xl lg:text-5xl font-bold text-marfil-50 leading-tight">
         {league.title}
       </h1>
-      <p class="mt-4 text-lg text-night-300">{league.description}</p>
+      <p class="mt-4 text-lg text-marfil-300">{league.description}</p>
     </header>
 
     <!-- Grid de detalles -->
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 border border-night-800 rounded-sm p-6 bg-night-900/30 mb-10">
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Día</dt>
-        <dd class="mt-1 text-night-100">{capitalize(league.day)}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Día</dt>
+        <dd class="mt-1 text-marfil-100">{capitalize(league.day)}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Horario</dt>
-        <dd class="mt-1 text-night-100">{league.hour}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Horario</dt>
+        <dd class="mt-1 text-marfil-100">{league.hour}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Mes</dt>
-        <dd class="mt-1 text-night-100">{MONTH_NAMES[league.month]}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Mes</dt>
+        <dd class="mt-1 text-marfil-100">{MONTH_NAMES[league.month]}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Año</dt>
-        <dd class="mt-1 text-night-100">{league.year}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Año</dt>
+        <dd class="mt-1 text-marfil-100">{league.year}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Lugar</dt>
-        <dd class="mt-1 text-night-100">{league.location}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Lugar</dt>
+        <dd class="mt-1 text-marfil-100">{league.location}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Ciudad</dt>
-        <dd class="mt-1 text-night-100">{league.city}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Ciudad</dt>
+        <dd class="mt-1 text-marfil-100">{league.city}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Formato</dt>
-        <dd class="mt-1 text-night-100 capitalize">{league.format}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Formato</dt>
+        <dd class="mt-1 text-marfil-100 capitalize">{league.format}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Rondas</dt>
-        <dd class="mt-1 text-night-100">{league.rounds}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Rondas</dt>
+        <dd class="mt-1 text-marfil-100">{league.rounds}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Entrada</dt>
-        <dd class="mt-1 text-night-100">{formatCLP(league.entryFee)}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Entrada</dt>
+        <dd class="mt-1 text-marfil-100">{formatCLP(league.entryFee)}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Proxies</dt>
-        <dd class="mt-1 text-night-100">{proxyLabel(league.proxyesAllowed)}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Proxies</dt>
+        <dd class="mt-1 text-marfil-100">{proxyLabel(league.proxyesAllowed)}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Organizador</dt>
-        <dd class="mt-1 text-night-100">{league.organizer}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Organizador</dt>
+        <dd class="mt-1 text-marfil-100">{league.organizer}</dd>
       </div>
       {league.maxPlayers && (
         <div>
-          <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Jugadores máx.</dt>
-          <dd class="mt-1 text-night-100">{league.maxPlayers}</dd>
+          <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Jugadores máx.</dt>
+          <dd class="mt-1 text-marfil-100">{league.maxPlayers}</dd>
         </div>
       )}
     </dl>
@@ -105,24 +106,14 @@ const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
     <!-- CTAs -->
     <div class="flex flex-wrap gap-4 mb-10">
       {league.registrationUrl && (
-        <a
-          href={league.registrationUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 px-6 py-3 bg-blood-700 hover:bg-blood-600 text-night-50 font-semibold rounded-sm transition-colors"
-        >
+        <Button href={league.registrationUrl} target="_blank">
           Inscribirse ↗
-        </a>
+        </Button>
       )}
       {league.resultsUrl && (
-        <a
-          href={league.resultsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 px-6 py-3 border border-night-700 hover:border-night-500 text-night-200 font-semibold rounded-sm transition-colors"
-        >
+        <Button href={league.resultsUrl} target="_blank" variant="outline">
           Ver resultados ↗
-        </a>
+        </Button>
       )}
     </div>
 

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/ui/Button.astro';
 import { getEntry, render } from 'astro:content';
 
 const { slug } = Astro.params;
@@ -23,10 +24,10 @@ const formatDate = (s: string) =>
   <article class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16">
 
     <!-- Breadcrumb -->
-    <nav aria-label="Breadcrumb" class="mb-8 text-sm text-night-500">
-      <a href="/decks" class="hover:text-night-300 transition-colors">Decks</a>
+    <nav aria-label="Breadcrumb" class="mb-8 text-sm text-marfil-500">
+      <a href="/decks" class="hover:text-marfil-300 transition-colors">Decks</a>
       <span class="mx-2">/</span>
-      <span class="text-night-300">{deck.title}</span>
+      <span class="text-marfil-300">{deck.title}</span>
     </nav>
 
     <!-- Cabecera -->
@@ -44,15 +45,15 @@ const formatDate = (s: string) =>
         </div>
       )}
       <div class="mb-2">
-        <span class="text-xs text-night-500 border border-night-700 rounded-sm px-2 py-0.5 font-medium uppercase">
+        <span class="text-xs text-marfil-500 border border-night-700 rounded-sm px-2 py-0.5 font-medium uppercase">
           {deck.format}
         </span>
       </div>
-      <h1 class="font-serif text-4xl lg:text-5xl font-bold text-night-50 leading-tight">
+      <h1 class="font-serif text-4xl lg:text-5xl font-bold text-marfil-50 leading-tight">
         {deck.title}
       </h1>
-      <p class="mt-4 text-lg text-night-300">{deck.description}</p>
-      <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-night-500 border-t border-night-900 pt-6">
+      <p class="mt-4 text-lg text-marfil-300">{deck.description}</p>
+      <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-marfil-500 border-t border-night-900 pt-6">
         <span>Por {deck.author}</span>
         <time datetime={deck.pubDate}>{formatDate(deck.pubDate)}</time>
       </div>
@@ -61,29 +62,29 @@ const formatDate = (s: string) =>
     <!-- Grid de detalles -->
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 border border-night-800 rounded-sm p-6 bg-night-900/30 mb-10">
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Formato</dt>
-        <dd class="mt-1 text-night-100">{deck.format}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Formato</dt>
+        <dd class="mt-1 text-marfil-100 capitalize">{deck.format}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Clan</dt>
-        <dd class="mt-1 text-night-100">{deck.clan.length > 0 ? deck.clan.join(', ') : '—'}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Clan</dt>
+        <dd class="mt-1 text-marfil-100">{deck.clan.length > 0 ? deck.clan.join(', ') : '—'}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Disciplinas</dt>
-        <dd class="mt-1 text-night-100">{deck.discipline.length > 0 ? deck.discipline.join(', ') : '—'}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Disciplinas</dt>
+        <dd class="mt-1 text-marfil-100">{deck.discipline.length > 0 ? deck.discipline.join(', ') : '—'}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Publicado</dt>
-        <dd class="mt-1 text-night-100"><time datetime={deck.pubDate}>{formatDate(deck.pubDate)}</time></dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Publicado</dt>
+        <dd class="mt-1 text-marfil-100"><time datetime={deck.pubDate}>{formatDate(deck.pubDate)}</time></dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Autor</dt>
-        <dd class="mt-1 text-night-100">{deck.author}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Autor</dt>
+        <dd class="mt-1 text-marfil-100">{deck.author}</dd>
       </div>
       {deck.comments && (
         <div class="sm:col-span-2">
-          <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Notas</dt>
-          <dd class="mt-1 text-night-300 text-sm">{deck.comments}</dd>
+          <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Notas</dt>
+          <dd class="mt-1 text-marfil-300 text-sm">{deck.comments}</dd>
         </div>
       )}
     </dl>
@@ -91,38 +92,33 @@ const formatDate = (s: string) =>
     <!-- CTA externo -->
     {deck.url && (
       <div class="mb-10">
-        <a
-          href={deck.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 px-6 py-3 bg-blood-700 hover:bg-blood-600 text-night-50 font-semibold rounded-sm transition-colors"
-        >
+        <Button href={deck.url} target="_blank">
           Ver deck completo ↗
-        </a>
+        </Button>
       </div>
     )}
 
     <!-- Contenido markdown -->
     {entry.body && (
       <div class="prose prose-invert prose-sm max-w-none
-                  prose-headings:font-serif prose-headings:text-night-100
+                  prose-headings:font-serif prose-headings:text-marfil-100
                   prose-a:text-blood-500 prose-a:no-underline hover:prose-a:text-blood-400
-                  prose-strong:text-night-200
-                  prose-blockquote:border-l-blood-800 prose-blockquote:text-night-400">
+                  prose-strong:text-marfil-200
+                  prose-blockquote:border-l-blood-800 prose-blockquote:text-marfil-400">
         <Content />
       </div>
     )}
 
     <!-- Volver + filtros rápidos -->
     <div class="mt-16 pt-8 border-t border-night-900 flex flex-wrap items-center justify-between gap-4">
-      <a href="/decks" class="text-sm text-blood-500 hover:text-blood-400 transition-colors">
+      <a href="/decks" class="text-sm text-blood-500 hover:text-blood-600 transition-colors">
         ← Volver a decks
       </a>
       <div class="flex flex-wrap gap-2">
         {deck.clan.map(c => (
           <a
             href={`/decks?clan=${encodeURIComponent(c)}`}
-            class="text-xs text-night-500 border border-night-800 rounded-sm px-2 py-0.5 hover:border-night-600 hover:text-night-300 transition-colors"
+            class="text-xs text-marfil-500 border border-night-800 rounded-sm px-2 py-0.5 hover:border-night-600 hover:text-marfil-300 transition-colors"
           >
             {c}
           </a>
@@ -130,7 +126,7 @@ const formatDate = (s: string) =>
         {deck.discipline.map(d => (
           <a
             href={`/decks?disciplina=${encodeURIComponent(d)}`}
-            class="text-xs text-night-500 border border-night-800 rounded-sm px-2 py-0.5 hover:border-night-600 hover:text-night-300 transition-colors"
+            class="text-xs text-marfil-500 border border-night-800 rounded-sm px-2 py-0.5 hover:border-night-600 hover:text-marfil-300 transition-colors"
           >
             {d}
           </a>

@@ -38,8 +38,8 @@ function isActive(href: string): boolean {
                   class:list={[
                     'px-3 py-2 rounded-sm transition-colors',
                     isActive(href)
-                      ? 'text-red-900 font-semibold'
-                      : 'text-night-300 hover:text-red-900',
+                      ? 'text-blood-500 font-semibold'
+                      : 'text-marfil-300 hover:text-blood-500',
                   ]}
                 >
                   {label}
@@ -55,7 +55,7 @@ function isActive(href: string): boolean {
             aria-expanded="false"
             aria-controls="nav-menu"
             aria-label="Abrir menú de navegación"
-            class="md:hidden p-2 text-night-400 hover:text-night-100 transition-colors rounded-sm"
+            class="md:hidden p-2 text-marfil-400 hover:text-marfil-100 transition-colors rounded-sm"
           >
             <svg
               id="icon-menu"
@@ -102,8 +102,8 @@ function isActive(href: string): boolean {
                 class:list={[
                   'block px-3 py-2.5 rounded-sm text-sm font-medium transition-colors',
                   isActive(href)
-                    ? 'text-red-900 bg-night-900'
-                    : 'text-night-300 hover:text-red-900 hover:bg-night-900',
+                    ? 'text-blood-500 bg-night-900'
+                    : 'text-marfil-300 hover:text-blood-500 hover:bg-night-900',
                 ]}
               >
                 {label}

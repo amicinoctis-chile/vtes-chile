@@ -47,7 +47,7 @@ const footerNavs = [
         <a href="/" aria-label="VTES Chile — Inicio" class="mb-4 inline-block">
           <Logo fill="currentColor"/>
         </a>
-        <p class="mt-4 text-sm text-night-500">
+        <p class="mt-4 text-sm text-marfil-500">
           Comunidad chilena de Vampire: The Eternal Struggle
         </p>
       </div>
@@ -56,14 +56,14 @@ const footerNavs = [
       {footerNavs.map(group => (
         group.title === 'Contacto' ? (
           <div>
-            <h4 class="font-serif text-sm font-semibold text-night-100 mb-4 tracking-wide uppercase">
+            <h4 class="font-serif text-sm font-semibold text-marfil-100 mb-4 tracking-wide uppercase">
               {group.title}
             </h4>
             <address class="not-italic space-y-2">
               {group.items.map(item => (
                 <a
                   href={item.href}
-                  class="text-sm text-night-400 hover:text-blood-500 transition-colors block"
+                  class="text-sm text-marfil-400 hover:text-blood-600 transition-colors block"
                 >
                   {item.text}
                 </a>
@@ -72,7 +72,7 @@ const footerNavs = [
           </div>
         ) : (
           <nav aria-label={group.title}>
-            <h4 class="font-serif text-sm font-semibold text-night-100 mb-4 tracking-wide uppercase">
+            <h4 class="font-serif text-sm font-semibold text-marfil-100 mb-4 tracking-wide uppercase">
               {group.title}
             </h4>
             <ul class="space-y-2">
@@ -80,7 +80,7 @@ const footerNavs = [
                 <li>
                   <a
                     href={item.href}
-                    class="text-sm text-night-400 hover:text-blood-500 transition-colors"
+                    class="text-sm text-marfil-400 hover:text-blood-600 transition-colors"
                   >
                     {item.text}
                   </a>
@@ -115,7 +115,7 @@ const footerNavs = [
         </a>
       </div>
 
-      <p class="text-xs text-night-700 text-center md:text-right max-w-prose leading-relaxed">
+      <p class="text-xs text-marfil-700 text-center md:text-right max-w-prose leading-relaxed">
         Partes de los materiales utilizados son derechos de autor y marcas
         registradas de Paradox Interactive AB, y se utilizan con permiso.
         Todos los derechos reservados. Para obtener más información, visita

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/ui/Button.astro';
 import { getEntry, render } from 'astro:content';
 import EventImage from '@/components/ui/EventImage.astro';
 
@@ -37,10 +38,10 @@ const { Content } = await render(entry);
   <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16">
 
     <!-- Breadcrumb -->
-    <nav aria-label="Breadcrumb" class="mb-8 text-sm text-night-500">
-      <a href="/events" class="hover:text-night-300 transition-colors">Eventos</a>
+    <nav aria-label="Breadcrumb" class="mb-8 text-sm text-marfil-500">
+      <a href="/events" class="hover:text-marfil-300 transition-colors">Eventos</a>
       <span class="mx-2">/</span>
-      <span class="text-night-300">{event.title}</span>
+      <span class="text-marfil-300">{event.title}</span>
     </nav>
 
     <!-- Cabecera -->
@@ -48,10 +49,10 @@ const { Content } = await render(entry);
       <p class="text-xs text-blood-500 font-medium tracking-wide uppercase mb-2">
         {formatDate(event.date)}
       </p>
-      <h1 class="font-serif text-4xl lg:text-5xl font-bold text-night-50 leading-tight">
+      <h1 class="font-serif text-4xl lg:text-5xl font-bold text-marfil-50 leading-tight">
         {event.title}
       </h1>
-      <p class="mt-4 text-lg text-night-300">{event.description}</p>
+      <p class="mt-4 text-lg text-marfil-300">{event.description}</p>
     </header>
 
     <!-- Imagen del evento -->
@@ -64,41 +65,41 @@ const { Content } = await render(entry);
     <!-- Grid de detalles -->
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 border border-night-800 rounded-sm p-6 bg-night-900/30 mb-10">
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Fecha</dt>
-        <dd class="mt-1 text-night-100">{formatDate(event.date)}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Fecha</dt>
+        <dd class="mt-1 text-marfil-100">{formatDate(event.date)}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Lugar</dt>
-        <dd class="mt-1 text-night-100">{event.location}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Lugar</dt>
+        <dd class="mt-1 text-marfil-100">{event.location}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Ciudad</dt>
-        <dd class="mt-1 text-night-100">{event.city}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Ciudad</dt>
+        <dd class="mt-1 text-marfil-100">{event.city}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Formato</dt>
-        <dd class="mt-1 text-night-100 capitalize">{event.format}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Formato</dt>
+        <dd class="mt-1 text-marfil-100 capitalize">{event.format}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Rondas</dt>
-        <dd class="mt-1 text-night-100">{event.rounds}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Rondas</dt>
+        <dd class="mt-1 text-marfil-100">{event.rounds}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Entrada</dt>
-        <dd class="mt-1 text-night-100">{formatCLP(event.entryFee)}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Entrada</dt>
+        <dd class="mt-1 text-marfil-100">{formatCLP(event.entryFee)}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Proxies</dt>
-        <dd class="mt-1 text-night-100">{proxyLabel(event.proxyesAllowed)}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Proxies</dt>
+        <dd class="mt-1 text-marfil-100">{proxyLabel(event.proxyesAllowed)}</dd>
       </div>
       <div>
-        <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Organizador</dt>
-        <dd class="mt-1 text-night-100">{event.organizer}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Organizador</dt>
+        <dd class="mt-1 text-marfil-100">{event.organizer}</dd>
       </div>
       {event.maxPlayers && (
         <div>
-          <dt class="text-xs text-night-500 font-medium uppercase tracking-wide">Jugadores máx.</dt>
-          <dd class="mt-1 text-night-100">{event.maxPlayers}</dd>
+          <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Jugadores máx.</dt>
+          <dd class="mt-1 text-marfil-100">{event.maxPlayers}</dd>
         </div>
       )}
     </dl>
@@ -106,24 +107,14 @@ const { Content } = await render(entry);
     <!-- CTAs condicionales -->
     <div class="flex flex-wrap gap-4 mb-10">
       {isFuture && event.registrationUrl && (
-        <a
-          href={event.registrationUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 px-6 py-3 bg-blood-700 hover:bg-blood-600 text-night-50 font-semibold rounded-sm transition-colors"
-        >
+        <Button href={event.registrationUrl} target="_blank">
           Inscribirse al evento ↗
-        </a>
+        </Button>
       )}
       {isPast && event.resultsUrl && (
-        <a
-          href={event.resultsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 px-6 py-3 border border-night-700 hover:border-night-500 text-night-200 font-semibold rounded-sm transition-colors"
-        >
+        <Button href={event.resultsUrl} target="_blank" variant="outline">
           Ver resultados ↗
-        </a>
+        </Button>
       )}
     </div>
 

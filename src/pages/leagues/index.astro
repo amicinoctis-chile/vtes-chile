@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/ui/Button.astro';
 import { getCollection } from 'astro:content';
 
 const mesParam = Astro.url.searchParams.get('mes') ?? '';
@@ -77,8 +78,8 @@ const buildPageUrl = (p: number) => {
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
 
     <header class="mb-10">
-      <h1 class="font-serif text-4xl font-bold text-night-50">Ligas</h1>
-      <p class="mt-2 text-night-400">Ligas recurrentes de VTES en Chile.</p>
+      <h1 class="font-serif text-4xl font-bold text-marfil-50">Ligas</h1>
+      <p class="mt-2 text-marfil-400">Ligas recurrentes de VTES en Chile.</p>
     </header>
 
     <!-- Filtros -->
@@ -86,13 +87,13 @@ const buildPageUrl = (p: number) => {
 
       <!-- Mes -->
       <div class="flex flex-col gap-1">
-        <label for="mes-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+        <label for="mes-select" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
           Mes
         </label>
         <select
           id="mes-select"
           name="mes"
-          class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+          class="bg-night-900 border border-night-700 text-marfil-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
         >
           <option value="">Todos los meses</option>
           {MONTH_NAMES.slice(1).map((name, i) => (
@@ -103,13 +104,13 @@ const buildPageUrl = (p: number) => {
 
       <!-- Año -->
       <div class="flex flex-col gap-1">
-        <label for="año-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+        <label for="año-select" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
           Año
         </label>
         <select
           id="año-select"
           name="año"
-          class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+          class="bg-night-900 border border-night-700 text-marfil-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
         >
           <option value="">Todos los años</option>
           {allYears.map(y => (
@@ -120,13 +121,13 @@ const buildPageUrl = (p: number) => {
 
       <!-- Formato -->
       <div class="flex flex-col gap-1">
-        <label for="formato-select" class="text-xs text-night-500 font-medium uppercase tracking-wide">
+        <label for="formato-select" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
           Formato
         </label>
         <select
           id="formato-select"
           name="formato"
-          class="bg-night-900 border border-night-700 text-night-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
+          class="bg-night-900 border border-night-700 text-marfil-200 rounded-sm px-3 py-2 text-sm focus:outline-none focus:border-blood-600"
         >
           <option value="">Todos los formatos</option>
           {validFormats.map(f => (
@@ -137,16 +138,11 @@ const buildPageUrl = (p: number) => {
 
       <!-- Acciones -->
       <div class="flex items-end gap-3">
-        <button
-          type="submit"
-          class="px-4 py-2 bg-blood-700 hover:bg-blood-600 text-night-50 text-sm font-semibold rounded-sm transition-colors"
-        >
-          Filtrar
-        </button>
+        <Button type="submit" size="sm">Filtrar</Button>
         {hasActiveFilters && (
           <a
             href="/leagues"
-            class="px-4 py-2 text-sm text-night-400 hover:text-night-200 transition-colors"
+            class="px-4 py-2 text-sm text-marfil-400 hover:text-marfil-200 transition-colors"
           >
             Limpiar filtros
           </a>
@@ -160,32 +156,32 @@ const buildPageUrl = (p: number) => {
       <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {leagues.map(league => (
           <li>
-            <article class="border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-2 h-full">
+            <article class="group relative border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-2 h-full">
+              <a
+                href={`/leagues/${league.id}`}
+                class="absolute inset-0 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blood-600"
+                aria-label={league.data.title}
+              ></a>
               <div class="flex items-center justify-between">
                 <span class="text-xs text-blood-500 font-medium tracking-wide uppercase">
                   {league.data.day} · {league.data.hour}
                 </span>
-                <span class="text-xs text-night-500">
+                <span class="text-xs text-marfil-500">
                   {MONTH_NAMES[league.data.month]} {league.data.year}
                 </span>
               </div>
-              <h2 class="text-night-100 font-semibold leading-snug">
-                <a
-                  href={`/leagues/${league.id}`}
-                  class="hover:text-blood-400 transition-colors"
-                >
-                  {league.data.title}
-                </a>
+              <h2 class="text-marfil-100 font-semibold leading-snug group-hover:text-blood-600 transition-colors">
+                {league.data.title}
               </h2>
-              <p class="text-sm text-night-400">{league.data.city} · {league.data.format}</p>
+              <p class="text-sm text-marfil-400">{league.data.city} · {league.data.format}</p>
               <p class="text-sm font-medium text-gold-500">{formatCLP(league.data.entryFee)}</p>
-              <p class="text-xs text-night-500">Proxies: {proxyLabel(league.data.proxyesAllowed)}</p>
+              <p class="text-xs text-marfil-500">Proxies: {proxyLabel(league.data.proxyesAllowed)}</p>
             </article>
           </li>
         ))}
       </ul>
     ) : (
-      <p class="text-night-500 py-12 text-center">
+      <p class="text-marfil-500 py-12 text-center">
         No hay ligas{mesParam && !isNaN(mesNum) ? ` en ${MONTH_NAMES[mesNum]}` : ''}
         {añoParam ? ` ${añoParam}` : ''}
         {formatoParam ? ` con formato ${formatoParam}` : ''}.
@@ -201,27 +197,27 @@ const buildPageUrl = (p: number) => {
         {page > 1 ? (
           <a
             href={buildPageUrl(page - 1)}
-            class="px-4 py-2 border border-night-700 text-night-300 hover:border-night-500 hover:text-night-100 rounded-sm transition-colors"
+            class="px-4 py-2 border border-night-700 text-marfil-300 hover:border-night-500 hover:text-marfil-100 rounded-sm transition-colors"
           >
             ← Anterior
           </a>
         ) : (
-          <span class="px-4 py-2 border border-night-800 text-night-700 rounded-sm cursor-not-allowed">
+          <span class="px-4 py-2 border border-night-800 text-marfil-700 rounded-sm cursor-not-allowed">
             ← Anterior
           </span>
         )}
 
-        <span class="text-night-400">Página {page} de {totalPages}</span>
+        <span class="text-marfil-400">Página {page} de {totalPages}</span>
 
         {page < totalPages ? (
           <a
             href={buildPageUrl(page + 1)}
-            class="px-4 py-2 border border-night-700 text-night-300 hover:border-night-500 hover:text-night-100 rounded-sm transition-colors"
+            class="px-4 py-2 border border-night-700 text-marfil-300 hover:border-night-500 hover:text-marfil-100 rounded-sm transition-colors"
           >
             Siguiente →
           </a>
         ) : (
-          <span class="px-4 py-2 border border-night-800 text-night-700 rounded-sm cursor-not-allowed">
+          <span class="px-4 py-2 border border-night-800 text-marfil-700 rounded-sm cursor-not-allowed">
             Siguiente →
           </span>
         )}
