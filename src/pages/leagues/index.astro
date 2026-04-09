@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Button from '@/components/ui/Button.astro';
+import Pagination from '@/components/ui/Pagination.astro';
 import { getCollection } from 'astro:content';
+import { formatCLP, proxyLabel, capitalize, MONTH_NAMES } from '@/lib/format';
 
 const mesParam = Astro.url.searchParams.get('mes') ?? '';
 const añoParam = Astro.url.searchParams.get('año') ?? '';
@@ -9,18 +11,8 @@ const formatoParam = Astro.url.searchParams.get('formato') ?? '';
 const paginaParam = parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10);
 const PER_PAGE = 9;
 
-const MONTH_NAMES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio',
-  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-
-const formatCLP = (n: number) =>
-  n === 0 ? 'Gratuito' : n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
-
-const proxyLabel = (v: string) =>
-  v === 'si' ? 'Sí' : v === 'no' ? 'No' : 'Por confirmar';
-
 const validFormats = ['V5', 'standard', 'storyline', 'limited', 'casual'] as const;
 type LeagueFormat = typeof validFormats[number];
-const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const dayOrder = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
 
@@ -188,41 +180,7 @@ const buildPageUrl = (p: number) => {
       </p>
     )}
 
-    <!-- Paginación -->
-    {totalPages > 1 && (
-      <nav
-        aria-label="Paginación"
-        class="mt-12 flex items-center justify-center gap-4 text-sm"
-      >
-        {page > 1 ? (
-          <a
-            href={buildPageUrl(page - 1)}
-            class="px-4 py-2 border border-night-700 text-marfil-300 hover:border-night-500 hover:text-marfil-100 rounded-sm transition-colors"
-          >
-            ← Anterior
-          </a>
-        ) : (
-          <span class="px-4 py-2 border border-night-800 text-marfil-700 rounded-sm cursor-not-allowed">
-            ← Anterior
-          </span>
-        )}
-
-        <span class="text-marfil-400">Página {page} de {totalPages}</span>
-
-        {page < totalPages ? (
-          <a
-            href={buildPageUrl(page + 1)}
-            class="px-4 py-2 border border-night-700 text-marfil-300 hover:border-night-500 hover:text-marfil-100 rounded-sm transition-colors"
-          >
-            Siguiente →
-          </a>
-        ) : (
-          <span class="px-4 py-2 border border-night-800 text-marfil-700 rounded-sm cursor-not-allowed">
-            Siguiente →
-          </span>
-        )}
-      </nav>
-    )}
+    <Pagination page={page} totalPages={totalPages} buildUrl={buildPageUrl} />
 
   </div>
 </BaseLayout>

@@ -2,7 +2,9 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Button from '@/components/ui/Button.astro';
 import { getEntry, render } from 'astro:content';
-import EventImage from '@/components/ui/EventImage.astro';
+import DynamicImage from '@/components/ui/DynamicImage.astro';
+import JsonLd from '@/components/ui/JsonLd.astro';
+import { formatCLP, formatDateLong, proxyLabel } from '@/lib/format';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/events');
@@ -18,14 +20,6 @@ const eventDate = new Date(event.date + 'T12:00:00');
 const isFuture = eventDate >= today;
 const isPast = eventDate < today;
 
-const formatCLP = (n: number) =>
-  n === 0 ? 'Gratuito' : n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
-
-const formatDate = (s: string) =>
-  new Date(s + 'T12:00:00').toLocaleDateString('es-CL', { dateStyle: 'long' });
-
-const proxyLabel = (v: string) =>
-  v === 'si' ? 'Sí' : v === 'no' ? 'No' : 'Por confirmar';
 
 const { Content } = await render(entry);
 ---
@@ -35,6 +29,26 @@ const { Content } = await render(entry);
   description={event.description}
   ogType="article"
 >
+  <JsonLd slot="head" data={{
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: event.title,
+    description: event.description,
+    startDate: event.date,
+    location: {
+      '@type': 'Place',
+      name: event.location,
+      address: { '@type': 'PostalAddress', addressLocality: event.city, addressCountry: 'CL' },
+    },
+    organizer: { '@type': 'Organization', name: event.organizer },
+    ...(event.entryFee > 0 && {
+      offers: {
+        '@type': 'Offer',
+        price: event.entryFee,
+        priceCurrency: 'CLP',
+      },
+    }),
+  }} />
   <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16">
 
     <!-- Breadcrumb -->
@@ -47,7 +61,7 @@ const { Content } = await render(entry);
     <!-- Cabecera -->
     <header class="mb-10">
       <p class="text-xs text-blood-500 font-medium tracking-wide uppercase mb-2">
-        {formatDate(event.date)}
+        {formatDateLong(event.date)}
       </p>
       <h1 class="font-serif text-4xl lg:text-5xl font-bold text-marfil-50 leading-tight">
         {event.title}
@@ -56,7 +70,8 @@ const { Content } = await render(entry);
     </header>
 
     <!-- Imagen del evento -->
-    <EventImage
+    <DynamicImage
+      folder="events"
       img={event.img}
       alt={event.title}
       class=""
@@ -66,7 +81,7 @@ const { Content } = await render(entry);
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 border border-night-800 rounded-sm p-6 bg-night-900/30 mb-10">
       <div>
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Fecha</dt>
-        <dd class="mt-1 text-marfil-100">{formatDate(event.date)}</dd>
+        <dd class="mt-1 text-marfil-100">{formatDateLong(event.date)}</dd>
       </div>
       <div>
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Lugar</dt>

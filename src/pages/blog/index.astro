@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-import BlogImage from '@/components/ui/BlogImage.astro';
+import DynamicImage from '@/components/ui/DynamicImage.astro';
+import Pagination from '@/components/ui/Pagination.astro';
+import { formatDateMedium } from '@/lib/format';
 
 const tagParam = Astro.url.searchParams.get('tag') ?? '';
 const paginaParam = parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10);
@@ -19,9 +21,6 @@ const filtered = tagParam
 const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
 const page = Math.min(Math.max(1, paginaParam), totalPages);
 const posts = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-
-const formatDate = (s: string) =>
-  new Date(s).toLocaleDateString('es-CL', { dateStyle: 'medium' });
 
 const buildPageUrl = (p: number) => {
   const params = new URLSearchParams();
@@ -80,7 +79,8 @@ const buildPageUrl = (p: number) => {
           <li>
             <article class="relative border border-night-800 bg-night-900/50 rounded-sm overflow-hidden hover:border-blood-800 transition-colors flex flex-col h-full">
               {post.data.img && (
-                <BlogImage
+                <DynamicImage
+                  folder="blogs"
                   img={post.data.img}
                   alt={post.data.description}
                   class="w-16 h-16 object-contain rounded-sm"
@@ -88,7 +88,7 @@ const buildPageUrl = (p: number) => {
               )}
               <div class="p-5 flex flex-col gap-2 flex-1">
                 <time datetime={post.data.pubDate} class="text-xs text-marfil-500">
-                  {formatDate(post.data.pubDate)}
+                  {formatDateMedium(post.data.pubDate)}
                 </time>
                 <h2 class="text-marfil-100 font-semibold leading-snug">
                   <a
@@ -124,41 +124,7 @@ const buildPageUrl = (p: number) => {
       </p>
     )}
 
-    <!-- Paginación -->
-    {totalPages > 1 && (
-      <nav
-        aria-label="Paginación"
-        class="mt-12 flex items-center justify-center gap-4 text-sm"
-      >
-        {page > 1 ? (
-          <a
-            href={buildPageUrl(page - 1)}
-            class="px-4 py-2 border border-night-700 text-marfil-300 hover:border-night-500 hover:text-marfil-100 rounded-sm transition-colors"
-          >
-            ← Anterior
-          </a>
-        ) : (
-          <span class="px-4 py-2 border border-night-800 text-marfil-700 rounded-sm cursor-not-allowed">
-            ← Anterior
-          </span>
-        )}
-
-        <span class="text-marfil-400">Página {page} de {totalPages}</span>
-
-        {page < totalPages ? (
-          <a
-            href={buildPageUrl(page + 1)}
-            class="px-4 py-2 border border-night-700 text-marfil-300 hover:border-night-500 hover:text-marfil-100 rounded-sm transition-colors"
-          >
-            Siguiente →
-          </a>
-        ) : (
-          <span class="px-4 py-2 border border-night-800 text-marfil-700 rounded-sm cursor-not-allowed">
-            Siguiente →
-          </span>
-        )}
-      </nav>
-    )}
+    <Pagination page={page} totalPages={totalPages} buildUrl={buildPageUrl} />
 
   </div>
 </BaseLayout>

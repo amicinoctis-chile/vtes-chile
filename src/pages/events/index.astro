@@ -1,7 +1,9 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Button from '@/components/ui/Button.astro';
+import Pagination from '@/components/ui/Pagination.astro';
 import { getCollection } from 'astro:content';
+import { formatCLP, formatDateLong, proxyLabel, capitalize } from '@/lib/format';
 
 const formatParam = Astro.url.searchParams.get('formato') ?? '';
 const tipoParam = Astro.url.searchParams.get('tipo') ?? 'proximos';
@@ -13,7 +15,6 @@ today.setHours(0, 0, 0, 0);
 
 const validFormats = ['V5', 'standard', 'storyline', 'limited', 'casual'] as const;
 type EventFormat = typeof validFormats[number];
-const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 let allEvents = await getCollection('events');
 
@@ -35,14 +36,6 @@ const events = allEvents.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
 const hasActiveFilters = formatParam !== '' || tipoParam !== 'proximos';
 
-const formatCLP = (n: number) =>
-  n === 0 ? 'Gratuito' : n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
-
-const formatDate = (s: string) =>
-  new Date(s + 'T12:00:00').toLocaleDateString('es-CL', { dateStyle: 'long' });
-
-const proxyLabel = (v: string) =>
-  v === 'si' ? 'Sí' : v === 'no' ? 'No' : 'Por confirmar';
 
 const buildPageUrl = (p: number) => {
   const params = new URLSearchParams();
@@ -138,7 +131,7 @@ const buildPageUrl = (p: number) => {
                 datetime={event.data.date}
                 class="text-xs text-blood-500 font-medium tracking-wide uppercase"
               >
-                {formatDate(event.data.date)}
+                {formatDateLong(event.data.date)}
               </time>
               <h2 class="text-marfil-100 font-semibold leading-snug">
                 <a
@@ -162,43 +155,7 @@ const buildPageUrl = (p: number) => {
       </p>
     )}
 
-    <!-- Paginación -->
-    {totalPages > 1 && (
-      <nav
-        aria-label="Paginación"
-        class="mt-12 flex items-center justify-center gap-4 text-sm"
-      >
-        {page > 1 ? (
-          <a
-            href={buildPageUrl(page - 1)}
-            class="px-4 py-2 border border-night-700 text-marfil-300 hover:border-night-500 hover:text-marfil-100 rounded-sm transition-colors"
-          >
-            ← Anterior
-          </a>
-        ) : (
-          <span class="px-4 py-2 border border-night-800 text-marfil-700 rounded-sm cursor-not-allowed">
-            ← Anterior
-          </span>
-        )}
-
-        <span class="text-marfil-400">
-          Página {page} de {totalPages}
-        </span>
-
-        {page < totalPages ? (
-          <a
-            href={buildPageUrl(page + 1)}
-            class="px-4 py-2 border border-night-700 text-marfil-300 hover:border-night-500 hover:text-marfil-100 rounded-sm transition-colors"
-          >
-            Siguiente →
-          </a>
-        ) : (
-          <span class="px-4 py-2 border border-night-800 text-marfil-700 rounded-sm cursor-not-allowed">
-            Siguiente →
-          </span>
-        )}
-      </nav>
-    )}
+    <Pagination page={page} totalPages={totalPages} buildUrl={buildPageUrl} />
 
   </div>
 </BaseLayout>

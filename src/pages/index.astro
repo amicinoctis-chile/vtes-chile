@@ -1,19 +1,10 @@
 ---
+export const prerender = true;
+
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import HeroSection from '@/components/HeroSection.astro';
-
-// --- Helpers ---
-const formatCLP = (n: number) =>
-  n === 0
-    ? 'Gratuito'
-    : n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
-
-const formatEventDate = (dateStr: string) =>
-  new Date(dateStr + 'T12:00:00').toLocaleDateString('es-CL', { dateStyle: 'long' });
-
-const formatPostDate = (isoStr: string) =>
-  new Date(isoStr).toLocaleDateString('es-CL', { dateStyle: 'medium' });
+import { formatCLP, formatDateLong, formatDateMedium } from '@/lib/format';
 
 // --- Data ---
 const today = new Date();
@@ -65,7 +56,7 @@ const latestDecks = (await getCollection('decks', ({ data }) => !data.draft))
                 datetime={event.data.date}
                 class="text-xs text-blood-500 font-medium tracking-wide uppercase"
               >
-                {formatEventDate(event.data.date)}
+                {formatDateLong(event.data.date)}
               </time>
               <p class="mt-2 text-marfil-100 font-semibold group-hover:text-blood-600 transition-colors">
                 {event.data.title}
@@ -218,7 +209,7 @@ const latestDecks = (await getCollection('decks', ({ data }) => !data.draft))
                 datetime={post.data.pubDate}
                 class="text-xs text-marfil-500"
               >
-                {formatPostDate(post.data.pubDate)}
+                {formatDateMedium(post.data.pubDate)}
               </time>
               <h3 class="mt-2 text-marfil-100 font-semibold group-hover:text-blood-600 transition-colors">
                 {post.data.title}
