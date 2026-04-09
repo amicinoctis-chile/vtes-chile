@@ -1,0 +1,44 @@
+---
+interface Props {
+  page: number;
+  totalPages: number;
+  buildUrl: (p: number) => string;
+}
+
+const { page, totalPages, buildUrl } = Astro.props;
+---
+
+{totalPages > 1 && (
+  <nav
+    aria-label="Paginación"
+    class="mt-12 flex items-center justify-center gap-4 text-sm"
+  >
+    {page > 1 ? (
+      <a
+        href={buildUrl(page - 1)}
+        class="px-4 py-2 border border-night-700 text-marfil-300 hover:border-night-500 hover:text-marfil-100 rounded-sm transition-colors"
+      >
+        ← Anterior
+      </a>
+    ) : (
+      <span class="px-4 py-2 border border-night-800 text-marfil-700 rounded-sm cursor-not-allowed">
+        ← Anterior
+      </span>
+    )}
+
+    <span class="text-marfil-400">Página {page} de {totalPages}</span>
+
+    {page < totalPages ? (
+      <a
+        href={buildUrl(page + 1)}
+        class="px-4 py-2 border border-night-700 text-marfil-300 hover:border-night-500 hover:text-marfil-100 rounded-sm transition-colors"
+      >
+        Siguiente →
+      </a>
+    ) : (
+      <span class="px-4 py-2 border border-night-800 text-marfil-700 rounded-sm cursor-not-allowed">
+        Siguiente →
+      </span>
+    )}
+  </nav>
+)}
