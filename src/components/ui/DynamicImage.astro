@@ -3,23 +3,24 @@ import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 
 interface Props {
+  folder: 'blogs' | 'events' | 'sites';
   img?: string;
   alt: string;
   class?: string;
 }
 
-const { img, alt, class: className } = Astro.props;
+const { folder, img, alt, class: className } = Astro.props;
 
 const images = import.meta.glob<{ default: ImageMetadata }>(
-  "/src/assets/sites/*.{jpg,jpeg,png,webp}"
+  "/src/assets/**/*.{jpg,jpeg,png,webp}"
 );
 
-const defaultPath = "/src/assets/sites/default.jpg";
+const defaultPath = `/src/assets/${folder}/default.jpg`;
 
 let loader = images[defaultPath];
 
 if (img) {
-  const imagePath = `/src/assets/sites/${img}`;
+  const imagePath = `/src/assets/${folder}/${img}`;
   if (images[imagePath]) {
     loader = images[imagePath];
   }
@@ -34,4 +35,4 @@ if (!loader) {
 const resolved = (await loader()).default;
 ---
 
-<Image src={resolved} alt={alt} class={className} />
+<Image src={resolved} alt={alt} class={className} loading="lazy" />
