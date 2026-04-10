@@ -53,6 +53,9 @@ const inactiveSites = allSites
                   </span>
                   <h2 class="text-marfil-100 font-semibold mt-1 transition-colors group-hover:text-blood-600">{site.data.name}</h2>
                   <p class="text-sm text-marfil-400 mt-1">{site.data.description}</p>
+                  {site.data.comments && (
+                    <p class="text-xs text-marfil-600 mt-1 italic">{site.data.comments}</p>
+                  )}
                 </div>
                 <span class="mt-auto text-xs text-blood-500 transition-colors font-medium">
                   Visitar ↗
@@ -76,6 +79,9 @@ const inactiveSites = allSites
                     {site.data.name}
                   </h2>
                   <p class="text-sm text-marfil-400 mt-1">{site.data.description}</p>
+                  {site.data.comments && (
+                    <p class="text-xs text-marfil-600 mt-1 italic">{site.data.comments}</p>
+                  )}
                 </div>
               </article>
             )}
