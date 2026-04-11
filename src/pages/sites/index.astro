@@ -44,7 +44,7 @@ const inactiveSites = allSites
                     folder="sites"
                     img={site.data.img}
                     alt={site.data.name}
-                    class="w-16 h-16 object-cover rounded-full"
+                    class={`w-16 h-16 object-cover ${site.data.platform === 'Podcast' ? 'rounded-sm' : 'rounded-full'}`}
                   />
                 )}
                 <div>
@@ -68,7 +68,7 @@ const inactiveSites = allSites
                     folder="sites"
                     img={site.data.img}
                     alt={site.data.name}
-                    class="w-16 h-16 object-cover rounded-full"
+                    class={`w-16 h-16 object-cover ${site.data.platform === 'Podcast' ? 'rounded-sm' : 'rounded-full'}`}
                   />
                 )}
                 <div>
