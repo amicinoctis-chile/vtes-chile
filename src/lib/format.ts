@@ -4,17 +4,22 @@ export const formatCLP = (n: number): string =>
     ? 'Gratuito'
     : n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
 
-/**
- * Fecha larga en español (ej: "26 de abril de 2026").
- * Para dates sin hora (events: "2026-04-26"), agrega T12:00:00 para evitar desfase de zona.
- * Para datetimes completos (blog: "2026-03-29T00:00:00Z"), usa el valor tal cual.
+/** Normaliza un string de fecha para evitar desfase de zona horaria.
+ *  - Dates sin hora ("2026-04-26") → agrega T12:00:00
+ *  - Datetimes a medianoche ("…T00:00:00" / "…T00:00:00Z") → reemplaza por T12:00:00
  */
-export const formatDateLong = (s: string): string =>
-  new Date(s.includes('T') ? s : s + 'T12:00:00').toLocaleDateString('es-CL', { dateStyle: 'long' });
+const normalizeDateStr = (s: string): string => {
+  if (!s.includes('T')) return s + 'T12:00:00';
+  return s.replace(/T00:00:00Z?$/, 'T12:00:00');
+};
 
-/** Fecha media en español (ej: "26 abr 2026"). Misma lógica de detección que formatDateLong. */
+/** Fecha larga en español (ej: "26 de abril de 2026"). */
+export const formatDateLong = (s: string): string =>
+  new Date(normalizeDateStr(s)).toLocaleDateString('es-CL', { dateStyle: 'long' });
+
+/** Fecha media en español (ej: "26 abr 2026"). */
 export const formatDateMedium = (s: string): string =>
-  new Date(s.includes('T') ? s : s + 'T12:00:00').toLocaleDateString('es-CL', { dateStyle: 'medium' });
+  new Date(normalizeDateStr(s)).toLocaleDateString('es-CL', { dateStyle: 'medium' });
 
 /** Etiqueta legible para el campo proxyesAllowed. */
 export const proxyLabel = (v: string): string =>
