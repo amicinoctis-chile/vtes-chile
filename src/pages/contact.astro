@@ -8,6 +8,7 @@ const turnstileSiteKey = cfEnv.TURNSTILE_SITE_KEY ?? '';
 
 let formState: 'idle' | 'success' | 'error' = 'idle';
 let errorMessage = '';
+let fieldErrors: Record<string, string> = {};
 
 // Preservar valores del formulario para repoblar en caso de error
 let formValues = { nombre: '', correo: '', tema: '', mensaje: '' };
@@ -22,40 +23,71 @@ if (Astro.request.method === 'POST') {
 
   formValues = { nombre, correo, tema, mensaje };
 
-  // 1. Verificar Turnstile (server-side — TURNSTILE_SECRET_KEY nunca sale al cliente)
-  const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      secret: cfEnv.TURNSTILE_SECRET_KEY ?? '',
-      response: cfToken,
-    }),
-  });
-  const verifyData = await verifyRes.json() as { success: boolean };
+  // 1. Validar campos del formulario
+  if (!nombre) {
+    fieldErrors.nombre = 'El nombre es obligatorio.';
+  } else if (nombre.length < 3) {
+    fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
+  }
 
-  if (!verifyData.success) {
+  if (!correo) {
+    fieldErrors.correo = 'El correo electrónico es obligatorio.';
+  } else if (correo.length < 3) {
+    fieldErrors.correo = 'El correo debe tener al menos 3 caracteres.';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+    fieldErrors.correo = 'El formato del correo electrónico no es válido.';
+  }
+
+  if (!tema) {
+    fieldErrors.tema = 'Debes seleccionar un tema.';
+  }
+
+  if (!mensaje) {
+    fieldErrors.mensaje = 'El mensaje es obligatorio.';
+  } else if (mensaje.length < 3) {
+    fieldErrors.mensaje = 'El mensaje debe tener al menos 3 caracteres.';
+  }
+
+  if (Object.keys(fieldErrors).length > 0) {
     formState = 'error';
-    errorMessage = 'La verificación de seguridad falló. Por favor, intenta de nuevo.';
-  } else {
-    // 2. Enviar via Web3Forms (WEB3FORMS_ACCESS_KEY nunca se expone en el HTML)
-    const web3Res = await fetch('https://api.web3forms.com/submit', {
+  }
+
+  // 2. Verificar Turnstile solo si no hay errores de validación
+  if (formState !== 'error') {
+    const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
-        access_key: cfEnv.WEB3FORMS_ACCESS_KEY ?? '',
-        subject: `[VTES Chile] ${tema}`,
-        from_name: nombre,
-        email: correo,
-        message: `Tema: ${tema}\n\n${mensaje}`,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        secret: cfEnv.TURNSTILE_SECRET_KEY ?? '',
+        response: cfToken,
       }),
     });
-    const web3Data = await web3Res.json() as { success: boolean };
+    const verifyData = await verifyRes.json() as { success: boolean };
 
-    if (web3Data.success) {
-      formState = 'success';
-    } else {
+    if (!verifyData.success) {
       formState = 'error';
-      errorMessage = 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
+      errorMessage = 'La verificación de seguridad falló. Por favor, intenta de nuevo.';
+    } else {
+      // 3. Enviar via Web3Forms (WEB3FORMS_ACCESS_KEY nunca se expone en el HTML)
+      const web3Res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: cfEnv.WEB3FORMS_ACCESS_KEY ?? '',
+          subject: `[VTES Chile] ${tema}`,
+          from_name: nombre,
+          email: correo,
+          message: `Tema: ${tema}\n\n${mensaje}`,
+        }),
+      });
+      const web3Data = await web3Res.json() as { success: boolean };
+
+      if (web3Data.success) {
+        formState = 'success';
+      } else {
+        formState = 'error';
+        errorMessage = 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
+      }
     }
   }
 }
@@ -68,8 +100,10 @@ const temas = [
   'Consulta general',
 ] as const;
 
-const inputClass =
-  'w-full bg-night-900 border border-night-700 text-marfil-100 rounded-sm px-4 py-2.5 text-sm placeholder:text-marfil-600 focus:outline-none focus:border-blood-600 transition-colors';
+const inputBase =
+  'w-full bg-night-900 border text-marfil-100 rounded-sm px-4 py-2.5 text-sm placeholder:text-marfil-600 focus:outline-none focus:border-blood-600 transition-colors';
+const inputClass = (field?: string) =>
+  `${inputBase} ${field && fieldErrors[field] ? 'border-blood-600' : 'border-night-700'}`;
 ---
 
 <BaseLayout
@@ -100,8 +134,8 @@ const inputClass =
     {formState !== 'success' && (
       <form method="POST" action="" class="flex flex-col gap-6" novalidate>
 
-        <!-- Error global -->
-        {formState === 'error' && (
+        <!-- Error global (Turnstile / Web3Forms) -->
+        {formState === 'error' && errorMessage && (
           <div
             role="alert"
             class="border border-blood-800 bg-blood-950/30 rounded-sm px-4 py-3 text-sm text-blood-400"
@@ -123,8 +157,11 @@ const inputClass =
             autocomplete="name"
             value={formValues.nombre}
             placeholder="Tu nombre"
-            class={inputClass}
+            class={inputClass('nombre')}
           />
+          {fieldErrors.nombre && (
+            <p class="text-xs text-blood-400 mt-1">{fieldErrors.nombre}</p>
+          )}
         </div>
 
         <!-- Correo electrónico -->
@@ -140,8 +177,11 @@ const inputClass =
             autocomplete="email"
             value={formValues.correo}
             placeholder="tu@correo.com"
-            class={inputClass}
+            class={inputClass('correo')}
           />
+          {fieldErrors.correo && (
+            <p class="text-xs text-blood-400 mt-1">{fieldErrors.correo}</p>
+          )}
         </div>
 
         <!-- Tema -->
@@ -153,13 +193,16 @@ const inputClass =
             id="tema"
             name="tema"
             required
-            class={inputClass}
+            class={inputClass('tema')}
           >
             <option value="" disabled selected={formValues.tema === ''}>Selecciona un tema</option>
             {temas.map(t => (
               <option value={t} selected={formValues.tema === t}>{t}</option>
             ))}
           </select>
+          {fieldErrors.tema && (
+            <p class="text-xs text-blood-400 mt-1">{fieldErrors.tema}</p>
+          )}
         </div>
 
         <!-- Mensaje -->
@@ -173,8 +216,11 @@ const inputClass =
             required
             rows={6}
             placeholder="Escribe tu mensaje aquí..."
-            class={`${inputClass} resize-y`}
+            class={`${inputClass('mensaje')} resize-y`}
           >{formValues.mensaje}</textarea>
+          {fieldErrors.mensaje && (
+            <p class="text-xs text-blood-400 mt-1">{fieldErrors.mensaje}</p>
+          )}
         </div>
 
         <!-- Turnstile widget -->
