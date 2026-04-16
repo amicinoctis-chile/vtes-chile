@@ -209,7 +209,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     );
     msg.setSubject(`[VTES Chile] ${tema}`);
     msg.addMessage({
-      contentType: 'text/plain; charset=utf-8',
+      contentType: 'text/plain',
       data: [
         `De: ${nombre} <${correo}>`,
         `Tema: ${tema}`,
