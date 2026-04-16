@@ -90,7 +90,7 @@ if (Astro.request.method === 'POST') {
           web3Data = JSON.parse(responseText) as { success: boolean; message?: string };
         } catch {
           formState = 'error';
-          errorMessage = 'Error al procesar la respuesta del servidor de contacto.';
+          errorMessage = `Error del servidor de contacto: ${responseText.slice(0, 200)}`;
         }
 
         if (formState === 'idle') {
