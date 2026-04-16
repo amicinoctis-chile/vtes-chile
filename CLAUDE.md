@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Astro 6** — framework web, SSR en Cloudflare Workers via `@astrojs/cloudflare@13`
 - **Tailwind CSS v4** — sin `tailwind.config.js`; tema definido en `src/styles/global.css` con `@theme {}`
 - **TypeScript strict** — extiende `astro/tsconfigs/strict` con `noUncheckedIndexedAccess` y `noImplicitOverride`
-- **Cloudflare Pages** — deploy target con `nodejs_compat` habilitado en `wrangler.toml`
+- **Cloudflare Workers** — deploy target con `nodejs_compat` habilitado en `wrangler.toml`
 - **Node 22+**
 
 ## Commands
@@ -18,8 +18,8 @@ npm run build        # build de producción → dist/
 npm run preview      # preview del build con el adapter de Cloudflare
 npm run type-check   # verificación de tipos con astro check
 npx astro sync       # regenera .astro/types.d.ts (correr tras cambios en content.config.ts)
-npm run cf:dev       # preview en runtime de Cloudflare Workers (requiere build previo)
-npm run cf:deploy    # deploy a Cloudflare Pages
+npm run cf:dev       # preview local en runtime de Cloudflare Workers (requiere build previo)
+npm run cf:deploy    # deploy a Cloudflare Workers
 ```
 
 ## Project Structure
@@ -87,7 +87,7 @@ const myVar = (env as Record<string, string | undefined>).MY_VAR ?? '';
 
 > **No usar** `Astro.locals.runtime.env` — fue removido en Astro v6.
 
-Las variables de entorno se configuran en el dashboard de Cloudflare Pages (Settings → Environment variables). Para desarrollo local se pueden definir en `.dev.vars` (ignorado por git).
+Las variables de entorno se configuran en el dashboard de Cloudflare Workers (Workers & Pages → vtes-chile → Settings → Variables). Para desarrollo local se pueden definir en `.dev.vars` (ignorado por git).
 
 Variables requeridas actualmente:
 
@@ -147,11 +147,24 @@ Fuentes: `font-serif` → `var(--font-cinzel)`, `font-sans` → `var(--font-inte
 
 `output: 'server'` — todas las páginas son SSR por defecto. Para prerender rutas estáticas usar `export const prerender = true` en la página.
 
+El `wrangler.toml` es mínimo (solo `name`, `compatibility_date` y `compatibility_flags`). El adapter genera automáticamente `dist/server/wrangler.json` durante el build con la configuración completa del Worker (entry point, assets, bindings).
+
 El `wrangler.toml` usa `compatibility_flags = ["nodejs_compat"]` que es necesario para que Astro funcione en el Workers runtime.
 
 Bindings configurados automáticamente por el adapter (mensajes al iniciar el build):
 - `IMAGES` — Cloudflare Images (imagen processing)
 - `SESSION` — KV binding para sesiones
+
+### CI/CD (GitHub Actions)
+
+El workflow `.github/workflows/deploy.yml` ejecuta el pipeline de deploy:
+
+- **Push a `main`**: `npm ci` → `type-check` → `build` → `wrangler deploy` (producción)
+- **Pull Request a `main`**: mismo pipeline (verificación de build)
+
+Secrets requeridos en GitHub (Settings → Secrets and variables → Actions):
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_TOKEN` (con permisos "Edit Cloudflare Workers")
 
 ### Páginas del sitio
 
