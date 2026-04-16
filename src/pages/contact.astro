@@ -3,114 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Button from '@/components/ui/Button.astro';
 import { env } from 'cloudflare:workers';
 
-const cfEnv = env as Record<string, string | undefined>;
-
-let formState: 'idle' | 'success' | 'error' = 'idle';
-let errorMessage = '';
-let fieldErrors: Record<string, string> = {};
-
-// Preservar valores del formulario para repoblar en caso de error
-let formValues = { nombre: '', correo: '', tema: '', mensaje: '' };
-
-if (Astro.request.method === 'POST') {
-  try {
-    const data = await Astro.request.formData();
-    const nombre  = String(data.get('nombre')  ?? '').trim();
-    const correo  = String(data.get('correo')  ?? '').trim();
-    const tema    = String(data.get('tema')    ?? '').trim();
-    const mensaje = String(data.get('mensaje') ?? '').trim();
-
-    formValues = { nombre, correo, tema, mensaje };
-
-    // 1. Validar campos del formulario
-    if (!nombre) {
-      fieldErrors.nombre = 'El nombre es obligatorio.';
-    } else if (nombre.length < 3) {
-      fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
-    }
-
-    if (!correo) {
-      fieldErrors.correo = 'El correo electrónico es obligatorio.';
-    } else if (correo.length < 3) {
-      fieldErrors.correo = 'El correo debe tener al menos 3 caracteres.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
-      fieldErrors.correo = 'El formato del correo electrónico no es válido.';
-    }
-
-    if (!tema) {
-      fieldErrors.tema = 'Debes seleccionar un tema.';
-    }
-
-    if (!mensaje) {
-      fieldErrors.mensaje = 'El mensaje es obligatorio.';
-    } else if (mensaje.length < 3) {
-      fieldErrors.mensaje = 'El mensaje debe tener al menos 3 caracteres.';
-    }
-
-    if (Object.keys(fieldErrors).length > 0) {
-      formState = 'error';
-    }
-
-    // 2. Honeypot: si el campo oculto tiene valor, es un bot
-    const honeypot = String(data.get('website') ?? '');
-    if (formState !== 'error' && honeypot) {
-      formState = 'success'; // Simular éxito para no revelar la protección
-    }
-
-    // 3. Tiempo mínimo: rechazar envíos en menos de 3 segundos
-    const ts = Number(data.get('_ts') ?? '0');
-    if (formState === 'idle' && ts > 0 && Date.now() - ts < 3000) {
-      formState = 'error';
-      errorMessage = 'Envío demasiado rápido. Por favor, espera unos segundos e intenta de nuevo.';
-    }
-
-    // 4. Enviar via Web3Forms
-    if (formState === 'idle') {
-      const accessKey = cfEnv.WEB3FORMS_ACCESS_KEY ?? '';
-      if (!accessKey) {
-        formState = 'error';
-        errorMessage = 'El servicio de contacto no está configurado. Por favor, intenta más tarde.';
-      } else {
-        const web3Res = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'User-Agent': 'vtes-chile-contact-form/1.0 (+https://vtes.cl)',
-          },
-          body: JSON.stringify({
-            access_key: accessKey,
-            subject: `[VTES Chile] ${tema}`,
-            from_name: nombre,
-            email: correo,
-            message: `Tema: ${tema}\n\n${mensaje}`,
-            botcheck: '',
-          }),
-        });
-
-        const contentType = web3Res.headers.get('content-type') ?? '';
-        const isJson = contentType.includes('application/json');
-
-        if (!isJson) {
-          formState = 'error';
-          errorMessage = `No se pudo enviar el mensaje. El servicio de contacto respondió con un error (HTTP ${web3Res.status}). Por favor, intenta de nuevo más tarde.`;
-        } else {
-          const web3Data = (await web3Res.json()) as { success: boolean; message?: string };
-          if (web3Res.ok && web3Data.success) {
-            formState = 'success';
-          } else {
-            formState = 'error';
-            errorMessage = web3Data.message ?? 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
-          }
-        }
-      }
-    }
-  } catch (err) {
-    formState = 'error';
-    const detail = err instanceof Error ? err.message : String(err);
-    errorMessage = `Ocurrió un error inesperado: ${detail}`;
-  }
-}
+const turnstileSiteKey = env.TURNSTILE_SITE_KEY ?? '';
 
 const temas = [
   'Aprender a jugar',
@@ -121,9 +14,7 @@ const temas = [
 ] as const;
 
 const inputBase =
-  'w-full bg-night-900 border text-marfil-100 rounded-sm px-4 py-2.5 text-sm placeholder:text-marfil-600 focus:outline-none focus:border-blood-600 transition-colors';
-const inputClass = (field?: string) =>
-  `${inputBase} ${field && fieldErrors[field] ? 'border-blood-600' : 'border-night-700'}`;
+  'w-full bg-night-900 border border-night-700 text-marfil-100 rounded-sm px-4 py-2.5 text-sm placeholder:text-marfil-600 focus:outline-none focus:border-blood-600 transition-colors data-[invalid]:border-blood-600';
 ---
 
 <BaseLayout
@@ -139,123 +30,230 @@ const inputClass = (field?: string) =>
       </p>
     </header>
 
-    <!-- Estado de éxito -->
-    {formState === 'success' && (
-      <div class="border border-night-700 bg-night-900/50 rounded-sm p-8 text-center">
-        <p class="text-lg font-semibold text-marfil-100 mb-2">¡Mensaje enviado!</p>
-        <p class="text-marfil-400 text-sm mb-6">
-          Gracias por escribirnos. Te responderemos a la brevedad.
-        </p>
-        <Button href="/" size="sm">← Volver al inicio</Button>
-      </div>
-    )}
+    <!-- Estado de éxito (oculto por defecto) -->
+    <div
+      id="contact-success"
+      hidden
+      class="border border-night-700 bg-night-900/50 rounded-sm p-8 text-center"
+    >
+      <p class="text-lg font-semibold text-marfil-100 mb-2">¡Mensaje enviado!</p>
+      <p class="text-marfil-400 text-sm mb-6">
+        Gracias por escribirnos. Te responderemos a la brevedad.
+      </p>
+      <Button href="/" size="sm">← Volver al inicio</Button>
+    </div>
 
     <!-- Formulario -->
-    {formState !== 'success' && (
-      <form method="POST" action="" class="flex flex-col gap-6" novalidate>
+    <form id="contact-form" class="flex flex-col gap-6" novalidate>
 
-        <!-- Error global (Turnstile / Web3Forms) -->
-        {formState === 'error' && errorMessage && (
-          <div
-            role="alert"
-            class="border border-blood-800 bg-blood-950/30 rounded-sm px-4 py-3 text-sm text-blood-400"
-          >
-            {errorMessage}
-          </div>
-        )}
+      <!-- Error global -->
+      <div
+        id="contact-error"
+        role="alert"
+        hidden
+        class="border border-blood-800 bg-blood-950/30 rounded-sm px-4 py-3 text-sm text-blood-400"
+      ></div>
 
-        <!-- Nombre -->
-        <div class="flex flex-col gap-1.5">
-          <label for="nombre" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
-            Nombre <span class="text-blood-500">*</span>
-          </label>
-          <input
-            id="nombre"
-            type="text"
-            name="nombre"
-            required
-            autocomplete="name"
-            value={formValues.nombre}
-            placeholder="Tu nombre"
-            class={inputClass('nombre')}
-          />
-          {fieldErrors.nombre && (
-            <p class="text-xs text-blood-400 mt-1">{fieldErrors.nombre}</p>
-          )}
-        </div>
+      <!-- Nombre -->
+      <div class="flex flex-col gap-1.5">
+        <label for="nombre" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
+          Nombre <span class="text-blood-500">*</span>
+        </label>
+        <input
+          id="nombre"
+          type="text"
+          name="nombre"
+          required
+          autocomplete="name"
+          placeholder="Tu nombre"
+          class={inputBase}
+        />
+        <p data-error-for="nombre" hidden class="text-xs text-blood-400 mt-1"></p>
+      </div>
 
-        <!-- Correo electrónico -->
-        <div class="flex flex-col gap-1.5">
-          <label for="correo" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
-            Correo electrónico <span class="text-blood-500">*</span>
-          </label>
-          <input
-            id="correo"
-            type="email"
-            name="correo"
-            required
-            autocomplete="email"
-            value={formValues.correo}
-            placeholder="tu@correo.com"
-            class={inputClass('correo')}
-          />
-          {fieldErrors.correo && (
-            <p class="text-xs text-blood-400 mt-1">{fieldErrors.correo}</p>
-          )}
-        </div>
+      <!-- Correo electrónico -->
+      <div class="flex flex-col gap-1.5">
+        <label for="correo" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
+          Correo electrónico <span class="text-blood-500">*</span>
+        </label>
+        <input
+          id="correo"
+          type="email"
+          name="correo"
+          required
+          autocomplete="email"
+          placeholder="tu@correo.com"
+          class={inputBase}
+        />
+        <p data-error-for="correo" hidden class="text-xs text-blood-400 mt-1"></p>
+      </div>
 
-        <!-- Tema -->
-        <div class="flex flex-col gap-1.5">
-          <label for="tema" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
-            Tema <span class="text-blood-500">*</span>
-          </label>
-          <select
-            id="tema"
-            name="tema"
-            required
-            class={inputClass('tema')}
-          >
-            <option value="" disabled selected={formValues.tema === ''}>Selecciona un tema</option>
-            {temas.map(t => (
-              <option value={t} selected={formValues.tema === t}>{t}</option>
-            ))}
-          </select>
-          {fieldErrors.tema && (
-            <p class="text-xs text-blood-400 mt-1">{fieldErrors.tema}</p>
-          )}
-        </div>
+      <!-- Tema -->
+      <div class="flex flex-col gap-1.5">
+        <label for="tema" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
+          Tema <span class="text-blood-500">*</span>
+        </label>
+        <select id="tema" name="tema" required class={inputBase}>
+          <option value="" disabled selected>Selecciona un tema</option>
+          {temas.map((t) => (
+            <option value={t}>{t}</option>
+          ))}
+        </select>
+        <p data-error-for="tema" hidden class="text-xs text-blood-400 mt-1"></p>
+      </div>
 
-        <!-- Mensaje -->
-        <div class="flex flex-col gap-1.5">
-          <label for="mensaje" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
-            Mensaje <span class="text-blood-500">*</span>
-          </label>
-          <textarea
-            id="mensaje"
-            name="mensaje"
-            required
-            rows={6}
-            placeholder="Escribe tu mensaje aquí..."
-            class={`${inputClass('mensaje')} resize-y`}
-          >{formValues.mensaje}</textarea>
-          {fieldErrors.mensaje && (
-            <p class="text-xs text-blood-400 mt-1">{fieldErrors.mensaje}</p>
-          )}
-        </div>
+      <!-- Mensaje -->
+      <div class="flex flex-col gap-1.5">
+        <label for="mensaje" class="text-xs text-marfil-500 font-medium uppercase tracking-wide">
+          Mensaje <span class="text-blood-500">*</span>
+        </label>
+        <textarea
+          id="mensaje"
+          name="mensaje"
+          required
+          rows={6}
+          placeholder="Escribe tu mensaje aquí..."
+          class={`${inputBase} resize-y`}
+        ></textarea>
+        <p data-error-for="mensaje" hidden class="text-xs text-blood-400 mt-1"></p>
+      </div>
 
-        <!-- Anti-bot: honeypot + timestamp + Web3Forms botcheck -->
-        <input type="text" name="website" autocomplete="off" tabindex="-1"
-          class="absolute opacity-0 pointer-events-none h-0 w-0" />
-        <input type="hidden" name="_ts" value={Date.now()} />
-        <input type="checkbox" name="botcheck" class="hidden" style="display:none" />
+      <!-- Anti-bot: honeypot + timestamp -->
+      <input
+        type="text"
+        name="website"
+        autocomplete="off"
+        tabindex="-1"
+        class="absolute opacity-0 pointer-events-none h-0 w-0"
+      />
+      <input type="hidden" name="_ts" value={Date.now()} />
 
-        <!-- Submit -->
-        <div>
-          <Button type="submit">Enviar mensaje</Button>
-        </div>
+      <!-- Turnstile -->
+      <div
+        class="cf-turnstile"
+        data-sitekey={turnstileSiteKey}
+        data-theme="dark"
+      ></div>
 
-      </form>
-    )}
+      <!-- Submit -->
+      <div>
+        <Button type="submit" id="contact-submit">Enviar mensaje</Button>
+      </div>
+
+    </form>
 
   </div>
+
+  <script
+    src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+    async
+    defer
+  ></script>
+
+  <script nonce={Astro.locals.cspNonce} is:inline>
+    (() => {
+      const form = document.getElementById('contact-form');
+      const successBox = document.getElementById('contact-success');
+      const errorBox = document.getElementById('contact-error');
+      const submitBtn = document.getElementById('contact-submit');
+      if (!form || !successBox || !errorBox || !submitBtn) return;
+
+      const FIELDS = ['nombre', 'correo', 'tema', 'mensaje'];
+
+      function clearFieldErrors() {
+        FIELDS.forEach((name) => {
+          const input = form.querySelector(`[name="${name}"]`);
+          const msg = form.querySelector(`[data-error-for="${name}"]`);
+          if (input) input.removeAttribute('data-invalid');
+          if (msg) {
+            msg.hidden = true;
+            msg.textContent = '';
+          }
+        });
+      }
+
+      function showFieldErrors(errors) {
+        Object.entries(errors).forEach(([name, text]) => {
+          const input = form.querySelector(`[name="${name}"]`);
+          const msg = form.querySelector(`[data-error-for="${name}"]`);
+          if (input) input.setAttribute('data-invalid', '');
+          if (msg) {
+            msg.textContent = String(text);
+            msg.hidden = false;
+          }
+        });
+      }
+
+      function showGlobalError(text) {
+        errorBox.textContent = text;
+        errorBox.hidden = false;
+      }
+
+      function hideGlobalError() {
+        errorBox.hidden = true;
+        errorBox.textContent = '';
+      }
+
+      function resetTurnstile() {
+        if (window.turnstile && typeof window.turnstile.reset === 'function') {
+          try { window.turnstile.reset(); } catch (_) {}
+        }
+      }
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        clearFieldErrors();
+        hideGlobalError();
+
+        const data = new FormData(form);
+        const turnstileToken = String(data.get('cf-turnstile-response') ?? '');
+
+        const payload = {
+          nombre: String(data.get('nombre') ?? ''),
+          correo: String(data.get('correo') ?? ''),
+          tema: String(data.get('tema') ?? ''),
+          mensaje: String(data.get('mensaje') ?? ''),
+          website: String(data.get('website') ?? ''),
+          _ts: Number(data.get('_ts') ?? 0),
+          turnstileToken,
+        };
+
+        submitBtn.setAttribute('disabled', '');
+        submitBtn.setAttribute('aria-busy', 'true');
+
+        try {
+          const res = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          let body = null;
+          try { body = await res.json(); } catch (_) {}
+
+          if (res.ok && body && body.ok) {
+            form.hidden = true;
+            successBox.hidden = false;
+            return;
+          }
+
+          if (body && body.fieldErrors) {
+            showFieldErrors(body.fieldErrors);
+          }
+          const msg =
+            (body && body.error) ||
+            `No se pudo enviar el mensaje (HTTP ${res.status}). Intenta de nuevo.`;
+          showGlobalError(msg);
+          resetTurnstile();
+        } catch (err) {
+          const detail = err && err.message ? err.message : String(err);
+          showGlobalError(`Error de red: ${detail}`);
+          resetTurnstile();
+        } finally {
+          submitBtn.removeAttribute('disabled');
+          submitBtn.removeAttribute('aria-busy');
+        }
+      });
+    })();
+  </script>
 </BaseLayout>

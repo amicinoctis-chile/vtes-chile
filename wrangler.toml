@@ -1,3 +1,16 @@
 name = "vtes-chile"
 compatibility_date = "2025-03-26"
 compatibility_flags = [ "nodejs_compat" ]
+
+# Email Routing send_email binding.
+# Restringido a enviar únicamente a la destination address verificada.
+[[send_email]]
+name = "SEND_EMAIL"
+destination_address = "amicinoctis.chile@gmail.com"
+
+# Workers Rate Limiting API: 5 envíos / 60s por clave (IP del cliente).
+[[unsafe.bindings]]
+name = "RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 5, period = 60 }

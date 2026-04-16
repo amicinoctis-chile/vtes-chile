@@ -20,13 +20,15 @@
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
     "@tailwindcss/typography": "^0.5.19",
-    "astro": "^6.1.5"
+    "astro": "^6.1.5",
+    "mimetext": "^3.0.28"
   },
   "overrides": {
     "vite": "^7"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.31.0",
+    "@cloudflare/workers-types": "^4.20260416.2",
     "@tailwindcss/vite": "^4.2.2",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",

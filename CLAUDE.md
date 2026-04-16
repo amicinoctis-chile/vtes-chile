@@ -93,7 +93,10 @@ Variables requeridas actualmente:
 
 | Variable | Uso |
 |---|---|
-| `WEB3FORMS_ACCESS_KEY` | Clave de acceso de Web3Forms para envío de correo (`/contact`) |
+| `TURNSTILE_SITE_KEY` | Site key pública del widget Turnstile (se inyecta en el HTML del form de `/contact`) |
+| `TURNSTILE_SECRET_KEY` | Secret key usada server-side para verificar el token Turnstile vía `siteverify` |
+
+Los tipos de los bindings de Cloudflare (`SEND_EMAIL`, `RATE_LIMITER`) y de estas variables están declarados en `src/env.d.ts` via `declare module 'cloudflare:workers'`, por lo que `env.*` queda tipado sin casts.
 
 ## Architecture
 
@@ -110,7 +113,7 @@ El middleware (`src/middleware.ts`) se ejecuta en cada request y:
 
 Los layouts consumen `Astro.locals.cspNonce` para exponerlo via `<meta name="csp-nonce">`. Si se añaden scripts inline en un componente, deben incluir `nonce={Astro.locals.cspNonce}`.
 
-Los fetch a APIs externas desde el servidor (Web3Forms) no requieren cambios en `connect-src` ya que ocurren server-side.
+La CSP permite `https://challenges.cloudflare.com` en `script-src`, `connect-src` y `frame-src` para que el widget de Turnstile cargue y se verifique desde el cliente. Los fetch a APIs externas desde el servidor (p. ej. `siteverify` en `/api/contact`, `send_email` binding) no requieren cambios en `connect-src` ya que ocurren server-side.
 
 ### Content Layer API (Astro 6)
 
@@ -145,9 +148,13 @@ Fuentes: `font-serif` → `var(--font-cinzel)`, `font-sans` → `var(--font-inte
 
 `output: 'server'` — todas las páginas son SSR por defecto. Para prerender rutas estáticas usar `export const prerender = true` en la página.
 
-El `wrangler.toml` es mínimo (solo `name`, `compatibility_date` y `compatibility_flags`). El adapter genera automáticamente `dist/server/wrangler.json` durante el build con la configuración completa del Worker (entry point, assets, bindings).
+El `wrangler.toml` declara bindings explícitos para `/contact` (ver abajo). El adapter genera automáticamente `dist/server/wrangler.json` durante el build con la configuración completa del Worker (entry point, assets, bindings).
 
 El `wrangler.toml` usa `compatibility_flags = ["nodejs_compat"]` que es necesario para que Astro funcione en el Workers runtime.
+
+Bindings declarados en `wrangler.toml`:
+- `SEND_EMAIL` (`[[send_email]]`) — Email Routing binding; restringido a enviar únicamente a `amicinoctis.chile@gmail.com`.
+- `RATE_LIMITER` (`[[unsafe.bindings]]` type `ratelimit`) — 5 requests / 60s por clave (IP); consumido en `src/pages/api/contact.ts`.
 
 Bindings configurados automáticamente por el adapter (mensajes al iniciar el build):
 - `IMAGES` — Cloudflare Images (imagen processing)
@@ -181,14 +188,16 @@ Secrets requeridos en GitHub (Settings → Secrets and variables → Actions):
 | `/blog/[slug]` | `pages/blog/[slug].astro` | Detalle con prose |
 | `/decks` | `pages/decks/index.astro` | Listado con 4 filtros |
 | `/decks/[slug]` | `pages/decks/[slug].astro` | Detalle con CTA externo |
-| `/contact` | `pages/contact.astro` | Formulario POST server-side; honeypot + Web3Forms |
+| `/contact` | `pages/contact.astro` | Form + widget Turnstile; envía por `fetch` a `/api/contact` |
+| `/api/contact` | `pages/api/contact.ts` | Endpoint POST-only: CORS, rate limit, Turnstile, MIME + `send_email` |
 
 #### Patrón formulario de contacto (`/contact`)
 
-La página maneja GET y POST en el mismo archivo Astro:
-- **GET**: renderiza el formulario con campos anti-bot ocultos (honeypot, timestamp, botcheck)
-- **POST**: valida campos, verifica honeypot (campo oculto que bots llenan) + tiempo mínimo de envío (3s), luego envía a `api.web3forms.com/submit` con `botcheck` para filtrado de spam de Web3Forms
-- No requiere JS del cliente ni servicios externos de CAPTCHA
+Flujo:
+- `contact.astro` renderiza el form (HTML puro) con widget Turnstile (`managed`, dark theme), honeypot (`website`) y timestamp (`_ts`). Un `<script is:inline nonce>` intercepta el submit, arma JSON y hace `fetch('/api/contact')` mostrando éxito/error sin recargar.
+- `api/contact.ts` (POST-only) valida en orden: Origin en allowlist (`https://vtes.cl`, `www.vtes.cl`, `localhost:4321/8787`) → rate limit por `cf-connecting-ip` (5/60s) → honeypot (éxito silencioso si hay valor) → timestamp ≥3s → validación de campos → verificación del token Turnstile contra `challenges.cloudflare.com/turnstile/v0/siteverify` → construcción MIME con `mimetext` (From `contacto@vtes.cl`, Reply-To `{nombre} <{correo}>`) → envío vía `env.SEND_EMAIL.send(new EmailMessage(...))`. Responde JSON `{ ok, error?, fieldErrors? }`.
+- El endpoint también responde a `OPTIONS` para preflight CORS.
+- Requiere correr en runtime real de Workers para probar `send_email` (`npm run build && npm run cf:dev`); `astro dev` no expone el binding.
 
 ### Path Alias
 
