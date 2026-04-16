@@ -73,7 +73,11 @@ if (Astro.request.method === 'POST') {
       } else {
         const web3Res = await fetch('https://api.web3forms.com/submit', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'User-Agent': 'vtes-chile-contact-form/1.0 (+https://vtes.cl)',
+          },
           body: JSON.stringify({
             access_key: accessKey,
             subject: `[VTES Chile] ${tema}`,
@@ -84,21 +88,19 @@ if (Astro.request.method === 'POST') {
           }),
         });
 
-        const responseText = await web3Res.text();
-        let web3Data: { success: boolean; message?: string };
-        try {
-          web3Data = JSON.parse(responseText) as { success: boolean; message?: string };
-        } catch {
-          formState = 'error';
-          errorMessage = `Error del servidor de contacto: ${responseText.slice(0, 200)}`;
-        }
+        const contentType = web3Res.headers.get('content-type') ?? '';
+        const isJson = contentType.includes('application/json');
 
-        if (formState === 'idle') {
-          if (web3Data!.success) {
+        if (!isJson) {
+          formState = 'error';
+          errorMessage = `No se pudo enviar el mensaje. El servicio de contacto respondió con un error (HTTP ${web3Res.status}). Por favor, intenta de nuevo más tarde.`;
+        } else {
+          const web3Data = (await web3Res.json()) as { success: boolean; message?: string };
+          if (web3Res.ok && web3Data.success) {
             formState = 'success';
           } else {
             formState = 'error';
-            errorMessage = web3Data!.message ?? 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
+            errorMessage = web3Data.message ?? 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
           }
         }
       }
