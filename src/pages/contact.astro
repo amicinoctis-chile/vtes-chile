@@ -54,40 +54,45 @@ if (Astro.request.method === 'POST') {
 
   // 2. Verificar Turnstile solo si no hay errores de validación
   if (formState !== 'error') {
-    const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        secret: cfEnv.TURNSTILE_SECRET_KEY ?? '',
-        response: cfToken,
-      }),
-    });
-    const verifyData = await verifyRes.json() as { success: boolean };
-
-    if (!verifyData.success) {
-      formState = 'error';
-      errorMessage = 'La verificación de seguridad falló. Por favor, intenta de nuevo.';
-    } else {
-      // 3. Enviar via Web3Forms (WEB3FORMS_ACCESS_KEY nunca se expone en el HTML)
-      const web3Res = await fetch('https://api.web3forms.com/submit', {
+    try {
+      const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          access_key: cfEnv.WEB3FORMS_ACCESS_KEY ?? '',
-          subject: `[VTES Chile] ${tema}`,
-          from_name: nombre,
-          email: correo,
-          message: `Tema: ${tema}\n\n${mensaje}`,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          secret: cfEnv.TURNSTILE_SECRET_KEY ?? '',
+          response: cfToken,
         }),
       });
-      const web3Data = await web3Res.json() as { success: boolean };
+      const verifyData = await verifyRes.json() as { success: boolean };
 
-      if (web3Data.success) {
-        formState = 'success';
-      } else {
+      if (!verifyData.success) {
         formState = 'error';
-        errorMessage = 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
+        errorMessage = 'La verificación de seguridad falló. Por favor, intenta de nuevo.';
+      } else {
+        // 3. Enviar via Web3Forms (WEB3FORMS_ACCESS_KEY nunca se expone en el HTML)
+        const web3Res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: cfEnv.WEB3FORMS_ACCESS_KEY ?? '',
+            subject: `[VTES Chile] ${tema}`,
+            from_name: nombre,
+            email: correo,
+            message: `Tema: ${tema}\n\n${mensaje}`,
+          }),
+        });
+        const web3Data = await web3Res.json() as { success: boolean };
+
+        if (web3Data.success) {
+          formState = 'success';
+        } else {
+          formState = 'error';
+          errorMessage = 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
+        }
       }
+    } catch {
+      formState = 'error';
+      errorMessage = 'Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde.';
     }
   }
 }
