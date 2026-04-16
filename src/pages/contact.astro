@@ -63,12 +63,22 @@ if (Astro.request.method === 'POST') {
           response: cfToken,
         }),
       });
-      const verifyData = await verifyRes.json() as { success: boolean };
 
-      if (!verifyData.success) {
+      const verifyText = await verifyRes.text();
+      let verifyData: { success: boolean };
+      try {
+        verifyData = JSON.parse(verifyText) as { success: boolean };
+      } catch {
+        formState = 'error';
+        errorMessage = 'Error al verificar la seguridad. Por favor, intenta de nuevo más tarde.';
+      }
+
+      if (formState !== 'error' && !verifyData!.success) {
         formState = 'error';
         errorMessage = 'La verificación de seguridad falló. Por favor, intenta de nuevo.';
-      } else {
+      }
+
+      if (formState !== 'error') {
         // 3. Enviar via Web3Forms (WEB3FORMS_ACCESS_KEY nunca se expone en el HTML)
         const web3Res = await fetch('https://api.web3forms.com/submit', {
           method: 'POST',
@@ -91,9 +101,9 @@ if (Astro.request.method === 'POST') {
         }
       }
     }
-  } catch (err) {
+  } catch {
     formState = 'error';
-    errorMessage = `Error: ${err instanceof Error ? err.message : String(err)}`;
+    errorMessage = 'Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde.';
   }
 }
 
