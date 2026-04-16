@@ -81,13 +81,13 @@ if (Astro.request.method === 'POST') {
             message: `Tema: ${tema}\n\n${mensaje}`,
           }),
         });
-        const web3Data = await web3Res.json() as { success: boolean };
+        const web3Data = await web3Res.json() as { success: boolean; message?: string };
 
         if (web3Data.success) {
           formState = 'success';
         } else {
           formState = 'error';
-          errorMessage = 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
+          errorMessage = web3Data.message ?? 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
         }
       }
     }
