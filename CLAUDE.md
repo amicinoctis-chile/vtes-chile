@@ -93,9 +93,7 @@ Variables requeridas actualmente:
 
 | Variable | Uso |
 |---|---|
-| `TURNSTILE_SITE_KEY` | Clave pública del widget Cloudflare Turnstile (`/contact`) |
-| `TURNSTILE_SECRET_KEY` | Clave secreta para verificación server-side de Turnstile |
-| `WEB3FORMS_ACCESS_KEY` | Clave de acceso de Web3Forms para envío de correo |
+| `WEB3FORMS_ACCESS_KEY` | Clave de acceso de Web3Forms para envío de correo (`/contact`) |
 
 ## Architecture
 
@@ -112,7 +110,7 @@ El middleware (`src/middleware.ts`) se ejecuta en cada request y:
 
 Los layouts consumen `Astro.locals.cspNonce` para exponerlo via `<meta name="csp-nonce">`. Si se añaden scripts inline en un componente, deben incluir `nonce={Astro.locals.cspNonce}`.
 
-La CSP incluye `https://challenges.cloudflare.com` en `script-src` y `frame-src` para el widget de Cloudflare Turnstile. Los fetch a APIs externas desde el servidor (Turnstile verify, Web3Forms) no requieren cambios en `connect-src` ya que ocurren server-side.
+Los fetch a APIs externas desde el servidor (Web3Forms) no requieren cambios en `connect-src` ya que ocurren server-side.
 
 ### Content Layer API (Astro 6)
 
@@ -183,14 +181,14 @@ Secrets requeridos en GitHub (Settings → Secrets and variables → Actions):
 | `/blog/[slug]` | `pages/blog/[slug].astro` | Detalle con prose |
 | `/decks` | `pages/decks/index.astro` | Listado con 4 filtros |
 | `/decks/[slug]` | `pages/decks/[slug].astro` | Detalle con CTA externo |
-| `/contact` | `pages/contact.astro` | Formulario POST server-side; Turnstile + Web3Forms |
+| `/contact` | `pages/contact.astro` | Formulario POST server-side; honeypot + Web3Forms |
 
 #### Patrón formulario de contacto (`/contact`)
 
 La página maneja GET y POST en el mismo archivo Astro:
-- **GET**: renderiza el formulario con `TURNSTILE_SITE_KEY` inyectado server-side
-- **POST**: verifica el token Turnstile contra `challenges.cloudflare.com/turnstile/v0/siteverify`, luego envía a `api.web3forms.com/submit` — ambas claves secretas nunca llegan al cliente
-- El script del widget se carga con `<script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>` (permitido por la CSP)
+- **GET**: renderiza el formulario con campos anti-bot ocultos (honeypot, timestamp, botcheck)
+- **POST**: valida campos, verifica honeypot (campo oculto que bots llenan) + tiempo mínimo de envío (3s), luego envía a `api.web3forms.com/submit` con `botcheck` para filtrado de spam de Web3Forms
+- No requiere JS del cliente ni servicios externos de CAPTCHA
 
 ### Path Alias
 

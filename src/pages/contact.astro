@@ -4,7 +4,6 @@ import Button from '@/components/ui/Button.astro';
 import { env } from 'cloudflare:workers';
 
 const cfEnv = env as Record<string, string | undefined>;
-const turnstileSiteKey = cfEnv.TURNSTILE_SITE_KEY ?? '';
 
 let formState: 'idle' | 'success' | 'error' = 'idle';
 let errorMessage = '';
@@ -20,7 +19,6 @@ if (Astro.request.method === 'POST') {
     const correo  = String(data.get('correo')  ?? '').trim();
     const tema    = String(data.get('tema')    ?? '').trim();
     const mensaje = String(data.get('mensaje') ?? '').trim();
-    const cfToken = String(data.get('cf-turnstile-response') ?? '');
 
     formValues = { nombre, correo, tema, mensaje };
 
@@ -53,52 +51,40 @@ if (Astro.request.method === 'POST') {
       formState = 'error';
     }
 
-    // 2. Verificar Turnstile solo si no hay errores de validación
-    if (formState !== 'error') {
-      const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    // 2. Honeypot: si el campo oculto tiene valor, es un bot
+    const honeypot = String(data.get('website') ?? '');
+    if (formState !== 'error' && honeypot) {
+      formState = 'success'; // Simular éxito para no revelar la protección
+    }
+
+    // 3. Tiempo mínimo: rechazar envíos en menos de 3 segundos
+    const ts = Number(data.get('_ts') ?? '0');
+    if (formState === 'idle' && ts > 0 && Date.now() - ts < 3000) {
+      formState = 'error';
+      errorMessage = 'Envío demasiado rápido. Por favor, espera unos segundos e intenta de nuevo.';
+    }
+
+    // 4. Enviar via Web3Forms
+    if (formState === 'idle') {
+      const web3Res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          secret: cfEnv.TURNSTILE_SECRET_KEY ?? '',
-          response: cfToken,
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: cfEnv.WEB3FORMS_ACCESS_KEY ?? '',
+          subject: `[VTES Chile] ${tema}`,
+          from_name: nombre,
+          email: correo,
+          message: `Tema: ${tema}\n\n${mensaje}`,
+          botcheck: '',
         }),
       });
+      const web3Data = await web3Res.json() as { success: boolean; message?: string };
 
-      const verifyText = await verifyRes.text();
-      let verifyData: { success: boolean };
-      try {
-        verifyData = JSON.parse(verifyText) as { success: boolean };
-      } catch {
+      if (web3Data.success) {
+        formState = 'success';
+      } else {
         formState = 'error';
-        errorMessage = 'Error al verificar la seguridad. Por favor, intenta de nuevo más tarde.';
-      }
-
-      if (formState !== 'error' && !verifyData!.success) {
-        formState = 'error';
-        errorMessage = 'La verificación de seguridad falló. Por favor, intenta de nuevo.';
-      }
-
-      if (formState !== 'error') {
-        // 3. Enviar via Web3Forms (WEB3FORMS_ACCESS_KEY nunca se expone en el HTML)
-        const web3Res = await fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            access_key: cfEnv.WEB3FORMS_ACCESS_KEY ?? '',
-            subject: `[VTES Chile] ${tema}`,
-            from_name: nombre,
-            email: correo,
-            message: `Tema: ${tema}\n\n${mensaje}`,
-          }),
-        });
-        const web3Data = await web3Res.json() as { success: boolean; message?: string };
-
-        if (web3Data.success) {
-          formState = 'success';
-        } else {
-          formState = 'error';
-          errorMessage = web3Data.message ?? 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
-        }
+        errorMessage = web3Data.message ?? 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
       }
     }
   } catch {
@@ -238,10 +224,11 @@ const inputClass = (field?: string) =>
           )}
         </div>
 
-        <!-- Turnstile widget -->
-        <div>
-          <div class="cf-turnstile" data-sitekey={turnstileSiteKey}></div>
-        </div>
+        <!-- Anti-bot: honeypot + timestamp + Web3Forms botcheck -->
+        <input type="text" name="website" autocomplete="off" tabindex="-1"
+          class="absolute opacity-0 pointer-events-none h-0 w-0" />
+        <input type="hidden" name="_ts" value={Date.now()} />
+        <input type="checkbox" name="botcheck" class="hidden" style="display:none" />
 
         <!-- Submit -->
         <div>
@@ -252,7 +239,4 @@ const inputClass = (field?: string) =>
     )}
 
   </div>
-
-  <!-- Script de Cloudflare Turnstile -->
-  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </BaseLayout>
