@@ -159,8 +159,10 @@ Bindings configurados automáticamente por el adapter (mensajes al iniciar el bu
 
 El workflow `.github/workflows/deploy.yml` ejecuta el pipeline de deploy:
 
-- **Push a `main`**: `npm ci` → `type-check` → `build` → `wrangler deploy` (producción)
+- **Push a `main`**: `npm ci` → `build` → `wrangler deploy` (producción)
 - **Pull Request a `main`**: mismo pipeline (verificación de build)
+
+> **Nota:** `type-check` (`astro check`) está excluido del CI porque `@astrojs/check` no soporta TypeScript 6 aún. Correr localmente con `npm run type-check` (instala la dependencia interactivamente).
 
 Secrets requeridos en GitHub (Settings → Secrets and variables → Actions):
 - `CLOUDFLARE_ACCOUNT_ID`
