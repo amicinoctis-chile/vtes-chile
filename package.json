@@ -12,8 +12,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "type-check": "astro check",
-    "cf:dev": "wrangler pages dev ./dist",
-    "cf:deploy": "wrangler pages deploy ./dist"
+    "cf:dev": "wrangler dev",
+    "cf:deploy": "wrangler deploy"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^13.1.8",
