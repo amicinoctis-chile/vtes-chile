@@ -14,47 +14,47 @@ let fieldErrors: Record<string, string> = {};
 let formValues = { nombre: '', correo: '', tema: '', mensaje: '' };
 
 if (Astro.request.method === 'POST') {
-  const data = await Astro.request.formData();
-  const nombre  = String(data.get('nombre')  ?? '').trim();
-  const correo  = String(data.get('correo')  ?? '').trim();
-  const tema    = String(data.get('tema')    ?? '').trim();
-  const mensaje = String(data.get('mensaje') ?? '').trim();
-  const cfToken = String(data.get('cf-turnstile-response') ?? '');
+  try {
+    const data = await Astro.request.formData();
+    const nombre  = String(data.get('nombre')  ?? '').trim();
+    const correo  = String(data.get('correo')  ?? '').trim();
+    const tema    = String(data.get('tema')    ?? '').trim();
+    const mensaje = String(data.get('mensaje') ?? '').trim();
+    const cfToken = String(data.get('cf-turnstile-response') ?? '');
 
-  formValues = { nombre, correo, tema, mensaje };
+    formValues = { nombre, correo, tema, mensaje };
 
-  // 1. Validar campos del formulario
-  if (!nombre) {
-    fieldErrors.nombre = 'El nombre es obligatorio.';
-  } else if (nombre.length < 3) {
-    fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
-  }
+    // 1. Validar campos del formulario
+    if (!nombre) {
+      fieldErrors.nombre = 'El nombre es obligatorio.';
+    } else if (nombre.length < 3) {
+      fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
+    }
 
-  if (!correo) {
-    fieldErrors.correo = 'El correo electrónico es obligatorio.';
-  } else if (correo.length < 3) {
-    fieldErrors.correo = 'El correo debe tener al menos 3 caracteres.';
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
-    fieldErrors.correo = 'El formato del correo electrónico no es válido.';
-  }
+    if (!correo) {
+      fieldErrors.correo = 'El correo electrónico es obligatorio.';
+    } else if (correo.length < 3) {
+      fieldErrors.correo = 'El correo debe tener al menos 3 caracteres.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+      fieldErrors.correo = 'El formato del correo electrónico no es válido.';
+    }
 
-  if (!tema) {
-    fieldErrors.tema = 'Debes seleccionar un tema.';
-  }
+    if (!tema) {
+      fieldErrors.tema = 'Debes seleccionar un tema.';
+    }
 
-  if (!mensaje) {
-    fieldErrors.mensaje = 'El mensaje es obligatorio.';
-  } else if (mensaje.length < 3) {
-    fieldErrors.mensaje = 'El mensaje debe tener al menos 3 caracteres.';
-  }
+    if (!mensaje) {
+      fieldErrors.mensaje = 'El mensaje es obligatorio.';
+    } else if (mensaje.length < 3) {
+      fieldErrors.mensaje = 'El mensaje debe tener al menos 3 caracteres.';
+    }
 
-  if (Object.keys(fieldErrors).length > 0) {
-    formState = 'error';
-  }
+    if (Object.keys(fieldErrors).length > 0) {
+      formState = 'error';
+    }
 
-  // 2. Verificar Turnstile solo si no hay errores de validación
-  if (formState !== 'error') {
-    try {
+    // 2. Verificar Turnstile solo si no hay errores de validación
+    if (formState !== 'error') {
       const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -90,10 +90,10 @@ if (Astro.request.method === 'POST') {
           errorMessage = 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
         }
       }
-    } catch {
-      formState = 'error';
-      errorMessage = 'Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde.';
     }
+  } catch {
+    formState = 'error';
+    errorMessage = 'Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde.';
   }
 }
 
