@@ -66,25 +66,41 @@ if (Astro.request.method === 'POST') {
 
     // 4. Enviar via Web3Forms
     if (formState === 'idle') {
-      const web3Res = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          access_key: cfEnv.WEB3FORMS_ACCESS_KEY ?? '',
-          subject: `[VTES Chile] ${tema}`,
-          from_name: nombre,
-          email: correo,
-          message: `Tema: ${tema}\n\n${mensaje}`,
-          botcheck: '',
-        }),
-      });
-      const web3Data = await web3Res.json() as { success: boolean; message?: string };
-
-      if (web3Data.success) {
-        formState = 'success';
-      } else {
+      const accessKey = cfEnv.WEB3FORMS_ACCESS_KEY ?? '';
+      if (!accessKey) {
         formState = 'error';
-        errorMessage = web3Data.message ?? 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
+        errorMessage = 'El servicio de contacto no está configurado. Por favor, intenta más tarde.';
+      } else {
+        const web3Res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: accessKey,
+            subject: `[VTES Chile] ${tema}`,
+            from_name: nombre,
+            email: correo,
+            message: `Tema: ${tema}\n\n${mensaje}`,
+            botcheck: '',
+          }),
+        });
+
+        const responseText = await web3Res.text();
+        let web3Data: { success: boolean; message?: string };
+        try {
+          web3Data = JSON.parse(responseText) as { success: boolean; message?: string };
+        } catch {
+          formState = 'error';
+          errorMessage = 'Error al procesar la respuesta del servidor de contacto.';
+        }
+
+        if (formState === 'idle') {
+          if (web3Data!.success) {
+            formState = 'success';
+          } else {
+            formState = 'error';
+            errorMessage = web3Data!.message ?? 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
+          }
+        }
       }
     }
   } catch (err) {
