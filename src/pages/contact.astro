@@ -87,9 +87,10 @@ if (Astro.request.method === 'POST') {
         errorMessage = web3Data.message ?? 'No se pudo enviar el mensaje. Por favor, intenta de nuevo más tarde.';
       }
     }
-  } catch {
+  } catch (err) {
     formState = 'error';
-    errorMessage = 'Ocurrió un error inesperado. Por favor, intenta de nuevo más tarde.';
+    const detail = err instanceof Error ? err.message : String(err);
+    errorMessage = `Ocurrió un error inesperado: ${detail}`;
   }
 }
 
