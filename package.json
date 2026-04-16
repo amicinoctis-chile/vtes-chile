@@ -11,7 +11,6 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "type-check": "astro check",
     "cf:dev": "wrangler dev",
     "cf:deploy": "wrangler deploy"
   },
@@ -31,7 +30,6 @@
     "@cloudflare/workers-types": "^4.20260416.2",
     "@tailwindcss/vite": "^4.2.2",
     "tailwindcss": "^4.2.2",
-    "typescript": "^6.0.2",
     "wrangler": "^4.0.0"
   }
 }

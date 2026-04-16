@@ -16,7 +16,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run dev          # servidor de desarrollo local (http://localhost:4321)
 npm run build        # build de producción → dist/
 npm run preview      # preview del build con el adapter de Cloudflare
-npm run type-check   # verificación de tipos con astro check
 npx astro sync       # regenera .astro/types.d.ts (correr tras cambios en content.config.ts)
 npm run cf:dev       # preview local en runtime de Cloudflare Workers (requiere build previo)
 npm run cf:deploy    # deploy a Cloudflare Workers
@@ -167,7 +166,7 @@ El workflow `.github/workflows/deploy.yml` ejecuta el pipeline de deploy:
 - **Push a `main`**: `npm ci` → `build` → `wrangler deploy` (producción)
 - **Pull Request a `main`**: mismo pipeline (verificación de build)
 
-> **Nota:** `type-check` (`astro check`) está excluido del CI porque `@astrojs/check` no soporta TypeScript 6 aún. Correr localmente con `npm run type-check` (instala la dependencia interactivamente).
+> **Nota:** no hay paso de `type-check` en CI. `@astrojs/check` todavía no soporta TypeScript 6 y su peer `typescript@^5.x` conflictúa con el peer `^5.0.0` del `tsconfck` interno de Astro, lo que rompe `npm ci`. Para validar tipos localmente, instalar `@astrojs/check` + `typescript@5.x` ad-hoc (fuera de `package.json`) y correr `npx astro check`.
 
 Secrets requeridos en GitHub (Settings → Secrets and variables → Actions):
 - `CLOUDFLARE_ACCOUNT_ID`
