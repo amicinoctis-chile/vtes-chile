@@ -45,7 +45,7 @@ const leagues = defineCollection({
     title: z.string(),
     description: z.string(),
     hour: z.iso.time(),
-    day: z.enum(['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']),
+    day: z.enum(['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo']),
     month: z.number().int().gte(1).lte(12),
     year: z.number().int().gte(2026),
     location: z.string(),

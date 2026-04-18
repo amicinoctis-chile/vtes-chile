@@ -14,7 +14,7 @@ const PER_PAGE = 9;
 const validFormats = ['V5', 'standard', 'storyline', 'limited', 'casual'] as const;
 type LeagueFormat = typeof validFormats[number];
 
-const dayOrder = ['lunes','martes','miercoles','jueves','viernes','sabado','domingo'];
+const dayOrder = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
 
 // Guardar colección completa para calcular años únicos antes de filtrar
 const allLeaguesRaw = await getCollection('leagues');

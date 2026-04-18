@@ -1,8 +1,8 @@
 ---
 title: "Liga Piedrabruja"
-description: "Liga Semanal V5 todos los miercoles a las 19:30"
+description: "Liga Semanal V5 todos los miércoles a las 19:30"
 hour: "19:30"
-day: "miercoles"
+day: "miércoles"
 month: 3
 year: 2026
 location: "Piedrabruja - Av. Providencia 1100 Local 45"
