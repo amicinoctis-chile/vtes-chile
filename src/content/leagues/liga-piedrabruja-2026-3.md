@@ -1,5 +1,5 @@
 ---
-title: "Liga Piedrabruja"
+title: "Liga Piedrabruja Marzo 2026"
 description: "Liga Semanal V5 todos los miércoles a las 19:30"
 hour: "19:30"
 day: "miércoles"
