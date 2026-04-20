@@ -1,0 +1,19 @@
+---
+interface Props {
+  formId: string;
+}
+
+const { formId } = Astro.props;
+---
+
+<script nonce={Astro.locals.cspNonce} is:inline define:vars={{ formId }}>
+  const form = document.getElementById(formId);
+  if (form instanceof HTMLFormElement) {
+    form.querySelector('[data-filter-submit]')?.setAttribute('hidden', '');
+    form
+      .querySelectorAll('select, input[type="radio"], input[type="checkbox"]')
+      .forEach((el) =>
+        el.addEventListener('change', () => form.requestSubmit()),
+      );
+  }
+</script>
