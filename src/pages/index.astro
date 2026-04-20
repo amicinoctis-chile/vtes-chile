@@ -4,7 +4,7 @@ export const prerender = true;
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import HeroSection from '@/components/HeroSection.astro';
-import { formatCLP, formatDateLong, formatDateMedium } from '@/lib/format';
+import { formatCLP, formatDateLong, formatDateMedium, isLeagueFinished } from '@/lib/format';
 
 // --- Data ---
 const today = new Date();
@@ -15,7 +15,13 @@ const upcomingEvents = (await getCollection('events'))
   .sort((a, b) => a.data.startDate.localeCompare(b.data.startDate))
   .slice(0, 3);
 
-const leagues = await getCollection('leagues');
+const leagues = (await getCollection('leagues'))
+  .filter(l => !isLeagueFinished(l.data))
+  .sort((a, b) => {
+    if (a.data.year !== b.data.year) return a.data.year - b.data.year;
+    return a.data.month - b.data.month;
+  })
+  .slice(0, 3);
 
 const stores = await getCollection('stores');
 

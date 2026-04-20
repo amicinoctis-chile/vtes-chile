@@ -4,16 +4,23 @@ import Button from '@/components/ui/Button.astro';
 import Pagination from '@/components/ui/Pagination.astro';
 import AutoSubmitFilters from '@/components/ui/AutoSubmitFilters.astro';
 import { getCollection } from 'astro:content';
-import { formatCLP, proxyLabel, capitalize, MONTH_NAMES } from '@/lib/format';
+import { formatCLP, proxyLabel, capitalize, MONTH_NAMES, isLeagueFinished } from '@/lib/format';
 
 const mesParam = Astro.url.searchParams.get('mes') ?? '';
 const añoParam = Astro.url.searchParams.get('año') ?? '';
 const formatoParam = Astro.url.searchParams.get('formato') ?? '';
+const estadoParam = Astro.url.searchParams.get('estado') ?? 'activas';
 const paginaParam = parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10);
 const PER_PAGE = 9;
 
 const validFormats = ['V5', 'standard', 'storyline', 'limited', 'casual'] as const;
 type LeagueFormat = typeof validFormats[number];
+
+const validEstados = ['activas', 'finalizadas', 'todas'] as const;
+type Estado = typeof validEstados[number];
+const estado: Estado = (validEstados as readonly string[]).includes(estadoParam)
+  ? (estadoParam as Estado)
+  : 'activas';
 
 const dayOrder = ['lunes','martes','miércoles','jueves','viernes','sábado','domingo'];
 
@@ -40,10 +47,18 @@ if (validFormats.includes(formatoParam as LeagueFormat)) {
   allLeagues = allLeagues.filter(l => l.data.format === formatoParam);
 }
 
-// Ordenar: año asc → mes asc → día de semana asc
+// Filtro por estado
+if (estado === 'activas') {
+  allLeagues = allLeagues.filter(l => !isLeagueFinished(l.data));
+} else if (estado === 'finalizadas') {
+  allLeagues = allLeagues.filter(l => isLeagueFinished(l.data));
+}
+
+// Ordenar: cuando son finalizadas, más recientes primero
+const sortDir = estado === 'finalizadas' ? -1 : 1;
 allLeagues.sort((a, b) => {
-  if (a.data.year !== b.data.year) return a.data.year - b.data.year;
-  if (a.data.month !== b.data.month) return a.data.month - b.data.month;
+  if (a.data.year !== b.data.year) return (a.data.year - b.data.year) * sortDir;
+  if (a.data.month !== b.data.month) return (a.data.month - b.data.month) * sortDir;
   return dayOrder.indexOf(a.data.day) - dayOrder.indexOf(b.data.day);
 });
 
@@ -51,13 +66,14 @@ const totalPages = Math.max(1, Math.ceil(allLeagues.length / PER_PAGE));
 const page = Math.min(Math.max(1, paginaParam), totalPages);
 const leagues = allLeagues.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-const hasActiveFilters = mesParam !== '' || añoParam !== '' || formatoParam !== '';
+const hasActiveFilters = mesParam !== '' || añoParam !== '' || formatoParam !== '' || estado !== 'activas';
 
 const buildPageUrl = (p: number) => {
   const params = new URLSearchParams();
   if (mesParam) params.set('mes', mesParam);
   if (añoParam) params.set('año', añoParam);
   if (formatoParam) params.set('formato', formatoParam);
+  if (estado !== 'activas') params.set('estado', estado);
   if (p > 1) params.set('pagina', String(p));
   const qs = params.toString();
   return `/leagues${qs ? '?' + qs : ''}`;
@@ -77,6 +93,25 @@ const buildPageUrl = (p: number) => {
 
     <!-- Filtros -->
     <form id="filters-form" method="GET" class="mb-10 flex flex-wrap items-end gap-4">
+
+      <!-- Estado -->
+      <div class="flex flex-col gap-1">
+        <span class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Estado</span>
+        <div class="flex items-center gap-4 px-3 py-2 text-sm text-marfil-200">
+          <label class="flex items-center gap-2">
+            <input type="radio" name="estado" value="activas" checked={estado === 'activas'} class="accent-blood-600" />
+            Activas
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="radio" name="estado" value="finalizadas" checked={estado === 'finalizadas'} class="accent-blood-600" />
+            Finalizadas
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="radio" name="estado" value="todas" checked={estado === 'todas'} class="accent-blood-600" />
+            Todas
+          </label>
+        </div>
+      </div>
 
       <!-- Mes -->
       <div class="flex flex-col gap-1">
@@ -147,35 +182,49 @@ const buildPageUrl = (p: number) => {
     <!-- Grid de ligas -->
     {leagues.length > 0 ? (
       <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {leagues.map(league => (
-          <li>
-            <article class="group relative border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-2 h-full">
-              <a
-                href={`/leagues/${league.id}`}
-                class="absolute inset-0 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blood-600"
-                aria-label={league.data.title}
-              ></a>
-              <div class="flex items-center justify-between">
-                <span class="text-xs text-blood-500 font-medium tracking-wide uppercase">
-                  {league.data.day} · {league.data.hour}
-                </span>
-                <span class="text-xs text-marfil-500">
-                  {MONTH_NAMES[league.data.month]} {league.data.year}
-                </span>
-              </div>
-              <h2 class="text-marfil-100 font-semibold leading-snug group-hover:text-blood-600 transition-colors">
-                {league.data.title}
-              </h2>
-              <p class="text-sm text-marfil-400">{league.data.city} · {league.data.format}</p>
-              <p class="text-sm font-medium text-gold-500">{formatCLP(league.data.entryFee)}</p>
-              <p class="text-xs text-marfil-500">Proxies: {proxyLabel(league.data.proxyesAllowed)}</p>
-            </article>
-          </li>
-        ))}
+        {leagues.map(league => {
+          const finalizada = isLeagueFinished(league.data);
+          return (
+            <li>
+              <article class:list={[
+                'group relative border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-2 h-full',
+                finalizada && 'opacity-60',
+              ]}>
+                <a
+                  href={`/leagues/${league.id}`}
+                  class="absolute inset-0 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blood-600"
+                  aria-label={league.data.title}
+                ></a>
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-xs text-blood-500 font-medium tracking-wide uppercase">
+                    {league.data.day} · {league.data.hour}
+                  </span>
+                  <div class="flex items-center gap-2">
+                    {finalizada && (
+                      <span class="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-sm bg-night-800 text-marfil-400 border border-night-700">
+                        Finalizada
+                      </span>
+                    )}
+                    <span class="text-xs text-marfil-500">
+                      {MONTH_NAMES[league.data.month]} {league.data.year}
+                    </span>
+                  </div>
+                </div>
+                <h2 class="text-marfil-100 font-semibold leading-snug group-hover:text-blood-600 transition-colors">
+                  {league.data.title}
+                </h2>
+                <p class="text-sm text-marfil-400">{league.data.city} · {league.data.format}</p>
+                <p class="text-sm font-medium text-gold-500">{formatCLP(league.data.entryFee)}</p>
+                <p class="text-xs text-marfil-500">Proxies: {proxyLabel(league.data.proxyesAllowed)}</p>
+              </article>
+            </li>
+          );
+        })}
       </ul>
     ) : (
       <p class="text-marfil-500 py-12 text-center">
-        No hay ligas{mesParam && !isNaN(mesNum) ? ` en ${MONTH_NAMES[mesNum]}` : ''}
+        No hay ligas {estado === 'activas' ? 'activas' : estado === 'finalizadas' ? 'finalizadas' : ''}
+        {mesParam && !isNaN(mesNum) ? ` en ${MONTH_NAMES[mesNum]}` : ''}
         {añoParam ? ` ${añoParam}` : ''}
         {formatoParam ? ` con formato ${formatoParam}` : ''}.
       </p>

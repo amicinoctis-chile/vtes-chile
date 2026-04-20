@@ -51,3 +51,16 @@ export const MONTH_NAMES = [
   '', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
 ] as const;
+
+/** Indica si una liga está finalizada.
+ *  - `finished: true` en frontmatter → siempre finalizada (override manual)
+ *  - Si no, finalizada cuando (year, month) es anterior al mes actual */
+export const isLeagueFinished = (data: { year: number; month: number; finished?: boolean }): boolean => {
+  if (data.finished === true) return true;
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  if (data.year < currentYear) return true;
+  if (data.year === currentYear && data.month < currentMonth) return true;
+  return false;
+};

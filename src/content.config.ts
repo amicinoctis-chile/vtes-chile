@@ -61,6 +61,7 @@ const leagues = defineCollection({
     maxPlayers: z.number().int().positive().optional(),
     registrationUrl: z.url().optional(),
     resultsUrl: z.url().optional(),
+    finished: z.boolean().optional(),
   }),
 });
 
