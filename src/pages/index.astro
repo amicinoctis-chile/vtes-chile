@@ -11,8 +11,8 @@ const today = new Date();
 today.setHours(0, 0, 0, 0);
 
 const upcomingEvents = (await getCollection('events'))
-  .filter(e => new Date(e.data.date + 'T12:00:00') >= today)
-  .sort((a, b) => a.data.date.localeCompare(b.data.date))
+  .filter(e => new Date(e.data.startDate + 'T12:00:00') >= today)
+  .sort((a, b) => a.data.startDate.localeCompare(b.data.startDate))
   .slice(0, 3);
 
 const leagues = await getCollection('leagues');
@@ -53,10 +53,10 @@ const latestDecks = (await getCollection('decks', ({ data }) => !data.draft))
           <li class="group">
             <a href={`/events/${event.id}`} class="block border border-night-800 bg-night-900/50 p-5 rounded-sm hover:border-blood-800 transition-colors">
               <time
-                datetime={event.data.date}
+                datetime={event.data.startDate}
                 class="text-xs text-blood-500 font-medium tracking-wide uppercase"
               >
-                {formatDateLong(event.data.date)}
+                {formatDateLong(event.data.startDate)}
               </time>
               <p class="mt-2 text-marfil-100 font-semibold group-hover:text-blood-600 transition-colors">
                 {event.data.title}
