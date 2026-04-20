@@ -19,11 +19,11 @@ type EventFormat = typeof validFormats[number];
 let allEvents = await getCollection('events');
 
 if (tipoParam === 'pasados') {
-  allEvents = allEvents.filter(e => new Date(e.data.date + 'T12:00:00') < today);
-  allEvents.sort((a, b) => b.data.date.localeCompare(a.data.date));
+  allEvents = allEvents.filter(e => new Date(e.data.startDate + 'T12:00:00') < today);
+  allEvents.sort((a, b) => b.data.startDate.localeCompare(a.data.startDate));
 } else {
-  allEvents = allEvents.filter(e => new Date(e.data.date + 'T12:00:00') >= today);
-  allEvents.sort((a, b) => a.data.date.localeCompare(b.data.date));
+  allEvents = allEvents.filter(e => new Date(e.data.startDate + 'T12:00:00') >= today);
+  allEvents.sort((a, b) => a.data.startDate.localeCompare(b.data.startDate));
 }
 
 if (validFormats.includes(formatParam as EventFormat)) {
@@ -128,10 +128,10 @@ const buildPageUrl = (p: number) => {
           <li>
             <article class="relative border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-2 h-full">
               <time
-                datetime={event.data.date}
+                datetime={`${event.data.startDate}T${event.data.startTime}`}
                 class="text-xs text-blood-500 font-medium tracking-wide uppercase"
               >
-                {formatDateLong(event.data.date)}
+                {formatDateLong(event.data.startDate)} · {event.data.startTime}
               </time>
               <h2 class="text-marfil-100 font-semibold leading-snug">
                 <a

@@ -1,13 +1,44 @@
 ---
 title: "Primer Grand Prix 2026"
 description: "Primera fecha del circuito Grand Prix"
-date: "2026-04-26"
-location: "Athenas Store- Portal Freire 566 San Bernardo"
+startDate: "2026-04-26"
+startTime: "10:30"
+endDate: "2026-04-26"
+endTime: "18:00"
+location: "Athenas TCG Store - Portal Freire 566 Local 1, San Bernardo"
 city: "San Bernardo"
 format: "standard"
 proxyesAllowed: "no"
-rounds: 2
-entryFee: 10000
-organizer: "Pendiente"
+rounds: 3
+entryFee: 15000
+organizer: "Daniel Bravo"
+registrationUrl: "https://archon.vekn.net/tournament/15537d78-8b72-41ca-89cd-72cac6a25706/display.html" 
 img: "grand-prix-2026-1.jpg"
 ---
+¡Atención Matusalenes! Este año el Circuito Grand Prix de Vampire: the Eternal Struggle tendrá 3 fechas. La primera fecha tendrá lugar el **domingo 26 de abril en Atenas TCG Store, ubicada en Freire 566, San Bernardo**.
+
+Estrenaremos un sistema de puntos de GP. Los jugadores con mayor puntaje de GP serán invitados a una mesa final exclusiva, con premios distintos a los entregados en las fechas anteriores.
+
+Circuito GP 2026:
+- **Formato Standard Constructed**
+- **No se permiten proxies**
+- Horario de llegada: **10:30 AM**
+
+El fee para la primera fecha es de **$15.000**. No olvides inscribirte en [Archon](https://archon.vekn.net/tournament/15537d78-8b72-41ca-89cd-72cac6a25706/display.html) y subir tu mazo.
+
+💸 Fee de inscripción: $15.000  
+Datos de pago:  
+Daniel Bravo  
+Cta corriente 77985344  
+Banco Santander  
+Rut 13550955-8  
+danielbravoreyes@gmail.com  
+
+🎴 Cartas promo incluidas en la inscripción:
+- Juliet Parr (Full Art)
+- Ian Carfax (Full Art)
+- Eyes of the Wild (Full Art)
+- Psyche (nuevo diseño)
+
+⚠️ Importante:
+Por temas de stock, las cartas promo están aseguradas para los primeros 20 inscritos en Archon con fee pagado. En caso de agotarse, se realizará un nuevo encargo para quienes no alcancen promos.

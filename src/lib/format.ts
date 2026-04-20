@@ -21,6 +21,18 @@ export const formatDateLong = (s: string): string =>
 export const formatDateMedium = (s: string): string =>
   new Date(normalizeDateStr(s)).toLocaleDateString('es-CL', { dateStyle: 'medium' });
 
+/** Rango horario de un evento. Si es de un día: "HH:MM - HH:MM".
+ *  Si cruza días: fecha+hora completas en ambos extremos. */
+export const formatEventSchedule = (
+  startDate: string,
+  startTime: string,
+  endDate: string,
+  endTime: string,
+): string =>
+  startDate === endDate
+    ? `${startTime} - ${endTime}`
+    : `${formatDateLong(startDate)} · ${startTime} — ${formatDateLong(endDate)} · ${endTime}`;
+
 /** Etiqueta legible para el campo proxyesAllowed. */
 export const proxyLabel = (v: string): string =>
   v === 'si' ? 'Sí' : v === 'no' ? 'No' : 'Por confirmar';

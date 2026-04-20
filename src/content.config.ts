@@ -23,7 +23,10 @@ const events = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    date: z.iso.date(),
+    startDate: z.iso.date(),
+    startTime: z.iso.time(),
+    endDate: z.iso.date(),
+    endTime: z.iso.time(),
     location: z.string(),
     city: z.string(),
     format: z.enum(['V5', 'standard', 'storyline', 'limited', 'casual']),

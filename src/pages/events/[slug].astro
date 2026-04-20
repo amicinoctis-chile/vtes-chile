@@ -4,7 +4,7 @@ import Button from '@/components/ui/Button.astro';
 import { getEntry, render } from 'astro:content';
 import DynamicImage from '@/components/ui/DynamicImage.astro';
 import JsonLd from '@/components/ui/JsonLd.astro';
-import { formatCLP, formatDateLong, proxyLabel } from '@/lib/format';
+import { formatCLP, formatDateLong, formatEventSchedule, proxyLabel } from '@/lib/format';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/events');
@@ -16,9 +16,10 @@ const event = entry.data;
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
-const eventDate = new Date(event.date + 'T12:00:00');
+const eventDate = new Date(event.startDate + 'T12:00:00');
 const isFuture = eventDate >= today;
 const isPast = eventDate < today;
+const isMultiDay = event.endDate !== event.startDate;
 
 
 const { Content } = await render(entry);
@@ -34,7 +35,8 @@ const { Content } = await render(entry);
     '@type': 'Event',
     name: event.title,
     description: event.description,
-    startDate: event.date,
+    startDate: `${event.startDate}T${event.startTime}:00`,
+    endDate: `${event.endDate}T${event.endTime}:00`,
     location: {
       '@type': 'Place',
       name: event.location,
@@ -61,7 +63,8 @@ const { Content } = await render(entry);
     <!-- Cabecera -->
     <header class="mb-10">
       <p class="text-xs text-blood-500 font-medium tracking-wide uppercase mb-2">
-        {formatDateLong(event.date)}
+        {formatDateLong(event.startDate)} · {event.startTime}
+        {isMultiDay && <> — {formatDateLong(event.endDate)} · {event.endTime}</>}
       </p>
       <h1 class="font-serif text-4xl lg:text-5xl font-bold text-marfil-50 leading-tight">
         {event.title}
@@ -79,9 +82,17 @@ const { Content } = await render(entry);
 
     <!-- Grid de detalles -->
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 border border-night-800 rounded-sm p-6 bg-night-900/30 mb-10">
+      {!isMultiDay && (
+        <div>
+          <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Fecha</dt>
+          <dd class="mt-1 text-marfil-100">{formatDateLong(event.startDate)}</dd>
+        </div>
+      )}
       <div>
-        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Fecha</dt>
-        <dd class="mt-1 text-marfil-100">{formatDateLong(event.date)}</dd>
+        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Horario</dt>
+        <dd class="mt-1 text-marfil-100">
+          {formatEventSchedule(event.startDate, event.startTime, event.endDate, event.endTime)}
+        </dd>
       </div>
       <div>
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Lugar</dt>
@@ -97,7 +108,7 @@ const { Content } = await render(entry);
       </div>
       <div>
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Rondas</dt>
-        <dd class="mt-1 text-marfil-100">{event.rounds}</dd>
+        <dd class="mt-1 text-marfil-100">{event.rounds} + Final</dd>
       </div>
       <div>
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Entrada</dt>
