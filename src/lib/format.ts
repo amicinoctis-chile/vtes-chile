@@ -1,8 +1,13 @@
-/** Formato moneda chilena. Retorna "Gratuito" si el valor es 0. */
-export const formatCLP = (n: number): string =>
-  n === 0
-    ? 'Gratuito'
-    : n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
+/** Formato moneda chilena.
+ *  - `undefined` → "Por confirmar"
+ *  - `0`         → "Gratuito"
+ *  - `> 0`       → moneda CLP */
+export const formatCLP = (n: number | undefined): string =>
+  n === undefined
+    ? 'Por confirmar'
+    : n === 0
+      ? 'Gratuito'
+      : n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
 
 /** Normaliza un string de fecha para evitar desfase de zona horaria.
  *  - Dates sin hora ("2026-04-26") → agrega T12:00:00

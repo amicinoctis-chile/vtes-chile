@@ -43,7 +43,7 @@ const { Content } = await render(entry);
       address: { '@type': 'PostalAddress', addressLocality: event.city, addressCountry: 'CL' },
     },
     organizer: { '@type': 'Organization', name: event.organizer },
-    ...(event.entryFee > 0 && {
+    ...(event.entryFee !== undefined && event.entryFee > 0 && {
       offers: {
         '@type': 'Offer',
         price: event.entryFee,

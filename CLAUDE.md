@@ -121,8 +121,8 @@ La CSP permite `https://challenges.cloudflare.com` en `script-src`, `connect-src
 | Colección | Directorio              | Campos clave                                                   |
 |-----------|-------------------------|----------------------------------------------------------------|
 | `blog`    | `src/content/blog/`     | `title`, `pubDate` (datetime), `draft` (filtrable), `tags`     |
-| `events`  | `src/content/events/`   | `date` (ISO date), `city`, `format`, `entryFee`, `rounds`      |
-| `leagues` | `src/content/leagues/`  | `hour` (HH:MM), `day`, `month`, `year`, `format`, `entryFee`   |
+| `events`  | `src/content/events/`   | `date` (ISO date), `city`, `format`, `entryFee` (opcional), `rounds` |
+| `leagues` | `src/content/leagues/`  | `hour` (HH:MM), `day`, `month`, `year`, `format`, `entryFee` (opcional) |
 | `stores`  | `src/content/stores/`   | `name`, `location`, `city`, `url`, `instagram`, `whatsapp`     |
 | `sites`   | `src/content/sites/`    | `name`, `platform` (enum 9 valores), `url`, `active`, `img`   |
 | `decks`   | `src/content/decks/`    | `clan[]`, `discipline[]`, `format` (standard\|v5), `pubDate`   |
