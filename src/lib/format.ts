@@ -40,7 +40,7 @@ export const formatEventSchedule = (
 
 /** Etiqueta legible para el campo proxyesAllowed. */
 export const proxyLabel = (v: string): string =>
-  v === 'si' ? 'Sí' : v === 'no' ? 'No' : 'Por confirmar';
+  v === 'si' ? 'Sí' : v === 'no' ? 'No' : v === 'tba' ? 'TBA' : 'Por confirmar';
 
 /** Primera letra en mayúscula. */
 export const capitalize = (s: string): string =>
