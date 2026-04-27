@@ -4,7 +4,7 @@ import Button from '@/components/ui/Button.astro';
 import { getEntry, render } from 'astro:content';
 import DynamicImage from '@/components/ui/DynamicImage.astro';
 import JsonLd from '@/components/ui/JsonLd.astro';
-import { formatCLP, formatDateLong, formatEventSchedule, proxyLabel } from '@/lib/format';
+import { formatCLP, formatDateLong, formatEventSchedule, proxyLabel, isEventFinished } from '@/lib/format';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/events');
@@ -18,7 +18,7 @@ const today = new Date();
 today.setHours(0, 0, 0, 0);
 const eventDate = new Date(event.startDate + 'T12:00:00');
 const isFuture = eventDate >= today;
-const isPast = eventDate < today;
+const isPast = isEventFinished(event);
 const isMultiDay = event.endDate !== event.startDate;
 
 
@@ -112,7 +112,9 @@ const { Content } = await render(entry);
       </div>
       <div>
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Entrada</dt>
-        <dd class="mt-1 text-marfil-100">{formatCLP(event.entryFee)}</dd>
+        <dd class="mt-1 text-marfil-100">
+          {isPast ? 'Evento Finalizado' : formatCLP(event.entryFee)}
+        </dd>
       </div>
       <div>
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Proxies</dt>

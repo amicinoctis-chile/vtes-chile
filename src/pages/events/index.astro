@@ -4,28 +4,32 @@ import Button from '@/components/ui/Button.astro';
 import Pagination from '@/components/ui/Pagination.astro';
 import AutoSubmitFilters from '@/components/ui/AutoSubmitFilters.astro';
 import { getCollection } from 'astro:content';
-import { formatCLP, formatDateLong, proxyLabel, capitalize } from '@/lib/format';
+import { formatCLP, formatDateLong, proxyLabel, capitalize, isEventFinished } from '@/lib/format';
 
 const formatParam = Astro.url.searchParams.get('formato') ?? '';
-const tipoParam = Astro.url.searchParams.get('tipo') ?? 'proximos';
+const estadoParam = Astro.url.searchParams.get('estado') ?? 'proximos';
 const paginaParam = parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10);
 const PER_PAGE = 9;
-
-const today = new Date();
-today.setHours(0, 0, 0, 0);
 
 const validFormats = ['V5', 'standard', 'storyline', 'limited', 'casual'] as const;
 type EventFormat = typeof validFormats[number];
 
+const validEstados = ['proximos', 'finalizados', 'todos'] as const;
+type Estado = typeof validEstados[number];
+const estado: Estado = (validEstados as readonly string[]).includes(estadoParam)
+  ? (estadoParam as Estado)
+  : 'proximos';
+
 let allEvents = await getCollection('events');
 
-if (tipoParam === 'pasados') {
-  allEvents = allEvents.filter(e => new Date(e.data.startDate + 'T12:00:00') < today);
-  allEvents.sort((a, b) => b.data.startDate.localeCompare(a.data.startDate));
-} else {
-  allEvents = allEvents.filter(e => new Date(e.data.startDate + 'T12:00:00') >= today);
-  allEvents.sort((a, b) => a.data.startDate.localeCompare(b.data.startDate));
+if (estado === 'proximos') {
+  allEvents = allEvents.filter(e => !isEventFinished(e.data));
+} else if (estado === 'finalizados') {
+  allEvents = allEvents.filter(e => isEventFinished(e.data));
 }
+
+const sortDir = estado === 'finalizados' ? -1 : 1;
+allEvents.sort((a, b) => a.data.startDate.localeCompare(b.data.startDate) * sortDir);
 
 if (validFormats.includes(formatParam as EventFormat)) {
   allEvents = allEvents.filter(e => e.data.format === formatParam);
@@ -35,13 +39,13 @@ const totalPages = Math.max(1, Math.ceil(allEvents.length / PER_PAGE));
 const page = Math.min(Math.max(1, paginaParam), totalPages);
 const events = allEvents.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-const hasActiveFilters = formatParam !== '' || tipoParam !== 'proximos';
+const hasActiveFilters = formatParam !== '' || estado !== 'proximos';
 
 
 const buildPageUrl = (p: number) => {
   const params = new URLSearchParams();
   if (formatParam) params.set('formato', formatParam);
-  if (tipoParam !== 'proximos') params.set('tipo', tipoParam);
+  if (estado !== 'proximos') params.set('estado', estado);
   if (p > 1) params.set('pagina', String(p));
   const qs = params.toString();
   return `/events${qs ? '?' + qs : ''}`;
@@ -62,32 +66,23 @@ const buildPageUrl = (p: number) => {
     <!-- Filtros -->
     <form id="filters-form" method="GET" class="mb-10 flex flex-wrap items-end gap-4">
 
-      <!-- Tabs Próximos / Pasados -->
-      <div class="flex rounded-sm overflow-hidden border border-night-700" role="group" aria-label="Tipo de evento">
-        <label class="relative cursor-pointer">
-          <input
-            type="radio"
-            name="tipo"
-            value="proximos"
-            checked={tipoParam !== 'pasados'}
-            class="sr-only peer"
-          />
-          <span class="block px-4 py-2 text-sm font-medium transition-colors peer-checked:bg-blood-700 peer-checked:text-marfil-50 text-marfil-400 hover:text-marfil-200">
+      <!-- Estado -->
+      <div class="flex flex-col gap-1">
+        <span class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Estado</span>
+        <div class="flex items-center gap-4 px-3 py-2 text-sm text-marfil-200">
+          <label class="flex items-center gap-2">
+            <input type="radio" name="estado" value="proximos" checked={estado === 'proximos'} class="accent-blood-600" />
             Próximos
-          </span>
-        </label>
-        <label class="relative cursor-pointer border-l border-night-700">
-          <input
-            type="radio"
-            name="tipo"
-            value="pasados"
-            checked={tipoParam === 'pasados'}
-            class="sr-only peer"
-          />
-          <span class="block px-4 py-2 text-sm font-medium transition-colors peer-checked:bg-blood-700 peer-checked:text-marfil-50 text-marfil-400 hover:text-marfil-200">
-            Pasados
-          </span>
-        </label>
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="radio" name="estado" value="finalizados" checked={estado === 'finalizados'} class="accent-blood-600" />
+            Finalizados
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="radio" name="estado" value="todos" checked={estado === 'todos'} class="accent-blood-600" />
+            Todos
+          </label>
+        </div>
       </div>
 
       <!-- Select de formato -->
@@ -125,33 +120,42 @@ const buildPageUrl = (p: number) => {
     <!-- Grid de eventos -->
     {events.length > 0 ? (
       <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {events.map(event => (
-          <li>
-            <article class="relative border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-2 h-full">
-              <time
-                datetime={`${event.data.startDate}T${event.data.startTime}`}
-                class="text-xs text-blood-500 font-medium tracking-wide uppercase"
-              >
-                {formatDateLong(event.data.startDate)} · {event.data.startTime}
-              </time>
-              <h2 class="text-marfil-100 font-semibold leading-snug">
-                <a
-                  href={`/events/${event.id}`}
-                  class="hover:text-blood-600 transition-colors after:absolute after:inset-0"
+        {events.map(event => {
+          const finalizado = isEventFinished(event.data);
+          return (
+            <li>
+              <article class="relative border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-2 h-full">
+                <time
+                  datetime={`${event.data.startDate}T${event.data.startTime}`}
+                  class="text-xs text-blood-500 font-medium tracking-wide uppercase"
                 >
-                  {event.data.title}
-                </a>
-              </h2>
-              <p class="text-sm text-marfil-400 capitalize">{event.data.city} · {event.data.format}</p>
-              <p class="text-sm font-medium text-gold-500">{formatCLP(event.data.entryFee)}</p>
-              <p class="text-xs text-marfil-500 capitalize">Proxies: {proxyLabel(event.data.proxyesAllowed)}</p>
-            </article>
-          </li>
-        ))}
+                  {formatDateLong(event.data.startDate)} · {event.data.startTime}
+                </time>
+                <h2 class="text-marfil-100 font-semibold leading-snug">
+                  <a
+                    href={`/events/${event.id}`}
+                    class="hover:text-blood-600 transition-colors after:absolute after:inset-0"
+                  >
+                    {event.data.title}
+                  </a>
+                </h2>
+                <p class="text-sm text-marfil-400 capitalize">{event.data.city} · {event.data.format}</p>
+                {finalizado ? (
+                  <span class="self-start text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-sm bg-night-800 text-marfil-400 border border-night-700">
+                    Evento Finalizado
+                  </span>
+                ) : (
+                  <p class="text-sm font-medium text-gold-500">{formatCLP(event.data.entryFee)}</p>
+                )}
+                <p class="text-xs text-marfil-500 capitalize">Proxies: {proxyLabel(event.data.proxyesAllowed)}</p>
+              </article>
+            </li>
+          );
+        })}
       </ul>
     ) : (
       <p class="text-marfil-500 py-12 text-center">
-        No hay eventos {tipoParam === 'proximos' ? 'próximos' : 'pasados'}
+        No hay eventos {estado === 'proximos' ? 'próximos' : estado === 'finalizados' ? 'finalizados' : ''}
         {formatParam ? ` con formato ${formatParam}` : ''}.
       </p>
     )}

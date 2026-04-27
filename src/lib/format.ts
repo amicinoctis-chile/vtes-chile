@@ -52,6 +52,13 @@ export const MONTH_NAMES = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
 ] as const;
 
+/** Indica si un evento ya finalizó (endDate < hoy a las 00:00). */
+export const isEventFinished = (data: { endDate: string }): boolean => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return new Date(data.endDate + 'T12:00:00') < today;
+};
+
 /** Indica si una liga está finalizada.
  *  - `finished: true` en frontmatter → siempre finalizada (override manual)
  *  - Si no, finalizada cuando (year, month) es anterior al mes actual */
