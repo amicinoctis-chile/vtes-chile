@@ -1,6 +1,4 @@
 ---
-export const prerender = true;
-
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import HeroSection from '@/components/HeroSection.astro';
@@ -11,7 +9,7 @@ const today = new Date();
 today.setHours(0, 0, 0, 0);
 
 const upcomingEvents = (await getCollection('events'))
-  .filter(e => new Date(e.data.startDate + 'T12:00:00') >= today)
+  .filter(e => new Date(e.data.endDate + 'T12:00:00') >= today)
   .sort((a, b) => a.data.startDate.localeCompare(b.data.startDate))
   .slice(0, 3);
 
