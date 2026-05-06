@@ -7,9 +7,10 @@ interface Props {
   img?: string;
   alt: string;
   class?: string;
+  priority?: boolean;
 }
 
-const { folder, img, alt, class: className } = Astro.props;
+const { folder, img, alt, class: className, priority = false } = Astro.props;
 
 const images = import.meta.glob<{ default: ImageMetadata }>(
   "/src/assets/**/*.{jpg,jpeg,png,webp}"
@@ -35,4 +36,14 @@ if (!loader) {
 const resolved = (await loader()).default;
 ---
 
-<Image src={resolved} alt={alt} class={className} loading="lazy" />
+<Image
+  src={resolved}
+  alt={alt}
+  class={className}
+  widths={[640, 960, 1280]}
+  sizes="(min-width: 1024px) 1024px, 100vw"
+  format="webp"
+  quality={80}
+  loading={priority ? 'eager' : 'lazy'}
+  fetchpriority={priority ? 'high' : 'auto'}
+/>
