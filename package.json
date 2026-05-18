@@ -15,11 +15,11 @@
     "cf:deploy": "wrangler deploy"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^13.1.8",
+    "@astrojs/cloudflare": "^13.5.1",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
     "@tailwindcss/typography": "^0.5.19",
-    "astro": "^6.1.5",
+    "astro": "^6.3.3",
     "mimetext": "^3.0.28"
   },
   "overrides": {
