@@ -4,8 +4,6 @@ description: "Un intento de página web para la comunidad de VTES Chile."
 pubDate: "2026-04-14T00:00:00Z"
 author: "Dani"
 ---
-Después de meses con el dominio abandonado, decidí dejar que la IA hiciera la pega. Espero que el sitio sea de utilidad para la comunidad. A continuación les dejo una presentación del sitio.
-
 VTES.CL es un sitio creado para la comunidad chilena de Vampire: The Eternal Struggle. El principal objetivo es centralizar la información de los eventos, ligas, tiendas y otros canales de la comunidad, además de ofrecer un espacio para que los jugadores puedan publicar sus opiniones y mazos.
 
 ## ¿Qué ofrece el sitio?
