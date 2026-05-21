@@ -10,7 +10,7 @@ const blog = defineCollection({
     description: z.string(),
     pubDate: z.iso.datetime(),
     updatedDate: z.iso.datetime().optional(),
-    author: z.string().default('Daniel Ibarra'),
+    author: z.string().default('Vástago Desconocido'),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
     img: z.string().default("default.jpg"),
