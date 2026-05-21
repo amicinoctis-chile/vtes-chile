@@ -13,6 +13,7 @@ rounds: 2
 entryFee: 10000
 organizer: "Magicsur"
 registrationUrl: "https://archon.vekn.net/tournament/6316d792-b5cb-4ddb-b81e-3aecd7e59cdf/display.html"
+resultsUrl: "https://archon.vekn.net/tournament/6316d792-b5cb-4ddb-b81e-3aecd7e59cdf/display.html"
 img: "tributo-al-maestro-5.webp"
 ---
 TRIBUTO AL MAESTRO 5

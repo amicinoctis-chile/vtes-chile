@@ -2,6 +2,7 @@
 title: "¿Qué es todo esto?"
 description: "Un intento de página web para la comunidad de VTES Chile."
 pubDate: "2026-04-14T00:00:00Z"
+author: "Dani"
 ---
 Después de meses con el dominio abandonado, decidí dejar que la IA hiciera la pega. Espero que el sitio sea de utilidad para la comunidad. A continuación les dejo una presentación del sitio.
 
