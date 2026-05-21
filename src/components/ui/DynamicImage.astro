@@ -13,7 +13,7 @@ interface Props {
 const { folder, img, alt, class: className, priority = false } = Astro.props;
 
 const images = import.meta.glob<{ default: ImageMetadata }>(
-  "/src/assets/**/*.{jpg,jpeg,png,webp}"
+  "/src/assets/{blogs,events,sites}/**/*.{jpg,jpeg,png,webp}"
 );
 
 const defaultPath = `/src/assets/${folder}/default.jpg`;
