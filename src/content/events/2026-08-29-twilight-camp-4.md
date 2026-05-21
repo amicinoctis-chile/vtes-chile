@@ -1,6 +1,6 @@
 ---
 title: "Twilight Camp 4': Hyper Champion Edition Plus"
-description: "Torneo Nacional"
+description: "Cuarta edición del torneo porteño"
 startDate: "2026-08-29"
 startTime: "10:30"
 endDate: "2026-08-29"
