@@ -62,6 +62,7 @@ const { Content } = await render(entry);
       <p class="mt-4 text-lg text-marfil-300">{post.description}</p>
       <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-marfil-500 border-t border-night-900 pt-6">
         <span>{post.author}</span>
+        -
         <time datetime={post.pubDate}>
           {formatDateLong(post.pubDate)}
         </time>
@@ -79,7 +80,7 @@ const { Content } = await render(entry);
         folder="blogs"
         img={post.img}
         alt={post.description}
-        class="w-full aspect-video object-cover rounded-sm mb-10"
+        class="w-full object-cover rounded-lg mb-10"
       />
     )}
 
