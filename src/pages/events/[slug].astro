@@ -73,6 +73,13 @@ const { Content } = await render(entry);
       <p class="mt-4 text-lg text-marfil-300">{event.description}</p>
     </header>
 
+    <!-- Tags -->
+    {(event.tags?.length ?? 0) > 0 && (
+      <div class="mb-10">
+        <EventTags tags={event.tags} as="a" />
+      </div>
+    )}
+
     <!-- Imagen del evento -->
     <DynamicImage
       folder="events"
@@ -133,14 +140,6 @@ const { Content } = await render(entry);
         </div>
       )}
     </dl>
-
-    <!-- Tags -->
-    {(event.tags?.length ?? 0) > 0 && (
-      <div class="mb-10">
-        <h2 class="text-xs text-marfil-500 font-medium uppercase tracking-wide mb-2">Tags</h2>
-        <EventTags tags={event.tags} as="a" />
-      </div>
-    )}
 
     <!-- CTAs condicionales -->
     <div class="flex flex-wrap gap-4 mb-10">
