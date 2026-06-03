@@ -26,6 +26,7 @@
     "vite": "^7"
   },
   "devDependencies": {
+    "@astrojs/mdx": "^6.0.1",
     "@cloudflare/vite-plugin": "^1.31.0",
     "@cloudflare/workers-types": "^4.20260416.2",
     "@tailwindcss/vite": "^4.2.2",

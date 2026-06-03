@@ -1,6 +1,7 @@
 import { defineConfig, fontProviders } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
+import mdx from '@astrojs/mdx';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
@@ -8,7 +9,7 @@ export default defineConfig({
   output: 'server',
 
   adapter: cloudflare(),
-  integrations: [sitemap()],
+  integrations: [sitemap(), mdx()],
 
   fonts: [
     {
