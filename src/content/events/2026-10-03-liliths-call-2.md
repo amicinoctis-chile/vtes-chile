@@ -12,6 +12,8 @@ proxyesAllowed: "no"
 rounds: 2
 organizer: "VTES Liliths"
 registrationUrl: "https://archon.vekn.net/tournament/9ce29ddf-d1d4-4a7f-8b86-6e9a98197979/display.html"
+resultsUrl: "https://archon.vekn.net/tournament/9ce29ddf-d1d4-4a7f-8b86-6e9a98197979/display.html"
+tags: ["V5", "No Proxy", "Single Deck", "Decklist required"]
 ---
 Lilith’s Call II — Torneo VTES 2026 A Lilith’s Call II es la segunda edición del torneo insignia organizado por VTES Liliths, una comunidad chilena comprometida con la creación de un entorno seguro, inclusivo y de alta calidad para Vampire: The Eternal Struggle, con especial atención a las mujeres, los jugadores queer y las identidades de género diverso.
 

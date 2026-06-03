@@ -1,0 +1,26 @@
+---
+interface Props {
+  tags: string[];
+  as?: 'a' | 'span';
+  class?: string;
+}
+
+const { tags, as = 'span', class: className = '' } = Astro.props;
+
+const chipBase = 'px-2 py-0.5 rounded-sm text-[11px] font-medium border border-night-700 bg-night-900/40 text-marfil-400';
+const chipLink = 'relative z-10 hover:border-night-500 hover:text-marfil-200 transition-colors';
+---
+
+{tags.length > 0 && (
+  <div class:list={['flex flex-wrap gap-1.5', className]}>
+    {tags.map(tag =>
+      as === 'a' ? (
+        <a href={`/events?tag=${encodeURIComponent(tag)}`} class:list={[chipBase, chipLink]}>
+          {tag}
+        </a>
+      ) : (
+        <span class={chipBase}>{tag}</span>
+      )
+    )}
+  </div>
+)}

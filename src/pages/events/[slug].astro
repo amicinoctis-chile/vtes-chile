@@ -4,6 +4,7 @@ import Button from '@/components/ui/Button.astro';
 import { getEntry, render } from 'astro:content';
 import DynamicImage from '@/components/ui/DynamicImage.astro';
 import JsonLd from '@/components/ui/JsonLd.astro';
+import EventTags from '@/components/ui/EventTags.astro';
 import { formatCLP, formatDateLong, formatEventSchedule, proxyLabel, isEventFinished } from '@/lib/format';
 
 const { slug } = Astro.params;
@@ -132,6 +133,14 @@ const { Content } = await render(entry);
         </div>
       )}
     </dl>
+
+    <!-- Tags -->
+    {event.tags.length > 0 && (
+      <div class="mb-10">
+        <h2 class="text-xs text-marfil-500 font-medium uppercase tracking-wide mb-2">Tags</h2>
+        <EventTags tags={event.tags} as="a" />
+      </div>
+    )}
 
     <!-- CTAs condicionales -->
     <div class="flex flex-wrap gap-4 mb-10">

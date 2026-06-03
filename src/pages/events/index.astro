@@ -3,10 +3,12 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Button from '@/components/ui/Button.astro';
 import Pagination from '@/components/ui/Pagination.astro';
 import AutoSubmitFilters from '@/components/ui/AutoSubmitFilters.astro';
+import EventTags from '@/components/ui/EventTags.astro';
 import { getCollection } from 'astro:content';
 import { formatCLP, formatDateLong, proxyLabel, capitalize, isEventFinished } from '@/lib/format';
 
 const formatParam = Astro.url.searchParams.get('formato') ?? '';
+const tagParam = Astro.url.searchParams.get('tag') ?? '';
 const estadoParam = Astro.url.searchParams.get('estado') ?? 'proximos';
 const paginaParam = parseInt(Astro.url.searchParams.get('pagina') ?? '1', 10);
 const PER_PAGE = 9;
@@ -35,18 +37,34 @@ if (validFormats.includes(formatParam as EventFormat)) {
   allEvents = allEvents.filter(e => e.data.format === formatParam);
 }
 
+const allTags = [...new Set(allEvents.flatMap(e => e.data.tags))].sort();
+
+if (tagParam) {
+  allEvents = allEvents.filter(e => e.data.tags.includes(tagParam));
+}
+
 const totalPages = Math.max(1, Math.ceil(allEvents.length / PER_PAGE));
 const page = Math.min(Math.max(1, paginaParam), totalPages);
 const events = allEvents.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-const hasActiveFilters = formatParam !== '' || estado !== 'proximos';
+const hasActiveFilters = formatParam !== '' || estado !== 'proximos' || tagParam !== '';
 
 
 const buildPageUrl = (p: number) => {
   const params = new URLSearchParams();
   if (formatParam) params.set('formato', formatParam);
   if (estado !== 'proximos') params.set('estado', estado);
+  if (tagParam) params.set('tag', tagParam);
   if (p > 1) params.set('pagina', String(p));
+  const qs = params.toString();
+  return `/events${qs ? '?' + qs : ''}`;
+};
+
+const buildTagUrl = (t: string) => {
+  const params = new URLSearchParams();
+  if (formatParam) params.set('formato', formatParam);
+  if (estado !== 'proximos') params.set('estado', estado);
+  if (t) params.set('tag', t);
   const qs = params.toString();
   return `/events${qs ? '?' + qs : ''}`;
 };
@@ -65,6 +83,8 @@ const buildPageUrl = (p: number) => {
 
     <!-- Filtros -->
     <form id="filters-form" method="GET" class="mb-10 flex flex-wrap items-end gap-4">
+
+      <input type="hidden" name="tag" value={tagParam} />
 
       <!-- Estado -->
       <div class="flex flex-col gap-1">
@@ -117,6 +137,36 @@ const buildPageUrl = (p: number) => {
 
     </form>
 
+    <!-- Chips de tags -->
+    {allTags.length > 0 && (
+      <div class="mb-10 flex flex-wrap gap-2">
+        <a
+          href={buildTagUrl('')}
+          class:list={[
+            'px-3 py-1 rounded-sm text-xs font-medium transition-colors border',
+            !tagParam
+              ? 'bg-blood-700 border-blood-700 text-marfil-50'
+              : 'border-night-700 text-marfil-400 hover:border-night-500 hover:text-marfil-200',
+          ]}
+        >
+          Todos
+        </a>
+        {allTags.map(tag => (
+          <a
+            href={buildTagUrl(tag)}
+            class:list={[
+              'px-3 py-1 rounded-sm text-xs font-medium transition-colors border',
+              tagParam === tag
+                ? 'bg-blood-700 border-blood-700 text-marfil-50'
+                : 'border-night-700 text-marfil-400 hover:border-night-500 hover:text-marfil-200',
+            ]}
+          >
+            {tag}
+          </a>
+        ))}
+      </div>
+    )}
+
     <!-- Grid de eventos -->
     {events.length > 0 ? (
       <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -147,7 +197,7 @@ const buildPageUrl = (p: number) => {
                 ) : (
                   <p class="text-sm font-medium text-gold-500">{formatCLP(event.data.entryFee)}</p>
                 )}
-                <p class="text-xs text-marfil-500 capitalize">Proxies: {proxyLabel(event.data.proxyesAllowed)}</p>
+                {event.data.tags.length > 0 && <EventTags tags={event.data.tags} as="a" class="mt-1" />}
               </article>
             </li>
           );
@@ -156,7 +206,8 @@ const buildPageUrl = (p: number) => {
     ) : (
       <p class="text-marfil-500 py-12 text-center">
         No hay eventos {estado === 'proximos' ? 'próximos' : estado === 'finalizados' ? 'finalizados' : ''}
-        {formatParam ? ` con formato ${formatParam}` : ''}.
+        {formatParam ? ` con formato ${formatParam}` : ''}
+        {tagParam ? ` con el tag “${tagParam}”` : ''}.
       </p>
     )}
 

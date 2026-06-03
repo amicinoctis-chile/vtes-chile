@@ -38,6 +38,7 @@ const events = defineCollection({
     registrationUrl: z.url().optional(),
     resultsUrl: z.url().optional(),
     img: z.string().default("default.jpg"),
+    tags: z.array(z.string()).default([]),
   }),
 });
 

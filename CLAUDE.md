@@ -35,7 +35,8 @@ src/
 │   │   ├── Header.astro    # navegación sticky con logo y toggle mobile
 │   │   └── Footer.astro    # footer con navegación, branding y disclaimer legal
 │   ├── ui/
-│   │   └── Button.astro    # botón reutilizable (primary/outline, sm/md/lg, <a> o <button>)
+│   │   ├── Button.astro    # botón reutilizable (primary/outline, sm/md/lg, <a> o <button>)
+│   │   └── EventTags.astro # chips bordeados de tags de eventos (prop `as`: 'a' enlaza a /events?tag, 'span' estático)
 │   └── HeroSection.astro   # sección hero de la homepage
 ├── content/
 │   ├── blog/           # artículos de la comunidad (.md/.mdx)
@@ -121,7 +122,7 @@ La CSP permite `https://challenges.cloudflare.com` en `script-src`, `connect-src
 | Colección | Directorio              | Campos clave                                                   |
 |-----------|-------------------------|----------------------------------------------------------------|
 | `blog`    | `src/content/blog/`     | `title`, `pubDate` (datetime), `draft` (filtrable), `tags`     |
-| `events`  | `src/content/events/`   | `date` (ISO date), `city`, `format`, `entryFee` (opcional), `rounds` |
+| `events`  | `src/content/events/`   | `startDate`/`endDate` (ISO date), `city`, `format`, `entryFee` (opcional), `rounds`, `tags[]` (filtrable vía `?tag=`) |
 | `leagues` | `src/content/leagues/`  | `hour` (HH:MM), `day`, `month`, `year`, `format`, `entryFee` (opcional) |
 | `stores`  | `src/content/stores/`   | `name`, `location`, `city`, `url`, `instagram`, `whatsapp`     |
 | `sites`   | `src/content/sites/`    | `name`, `platform` (enum 9 valores), `url`, `active`, `img`   |
@@ -177,8 +178,8 @@ Secrets requeridos en GitHub (Settings → Secrets and variables → Actions):
 | Ruta | Archivo | Notas |
 |---|---|---|
 | `/` | `pages/index.astro` | Homepage con secciones de todas las colecciones |
-| `/events` | `pages/events/index.astro` | Listado con filtros y paginación |
-| `/events/[slug]` | `pages/events/[slug].astro` | Detalle; CTA condicional futuro/pasado |
+| `/events` | `pages/events/index.astro` | Listado con filtros (estado/formato + chip-filters de tags vía `?tag=`) y paginación |
+| `/events/[slug]` | `pages/events/[slug].astro` | Detalle; CTA condicional futuro/pasado; sección de tags |
 | `/leagues` | `pages/leagues/index.astro` | Listado con filtros mes/año/formato |
 | `/leagues/[slug]` | `pages/leagues/[slug].astro` | Detalle |
 | `/stores` | `pages/stores/index.astro` | Listado con filtro por ciudad |

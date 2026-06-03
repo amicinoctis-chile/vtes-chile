@@ -1,5 +1,5 @@
 ---
-title: "Torneo Tablecat Mayo 2026"
+title: "Tablecat Guidance Vol.2"
 description: "Torneo Multideck en Tablecat Games"
 startDate: "2026-05-31"
 startTime: "12:00"
@@ -15,4 +15,5 @@ organizer: "Tablecat Games"
 registrationUrl: "https://archon.vekn.net/tournament/05dd4726-ab35-4c00-81a6-e7f27401622e/display.html"
 resultsUrl: "https://archon.vekn.net/tournament/05dd4726-ab35-4c00-81a6-e7f27401622e/display.html"
 img: "2026-05-31-torneo-tablecat-mayo-2026.jpg"
+tags: ["Standard", "No Proxy", "Multideck"]
 ---

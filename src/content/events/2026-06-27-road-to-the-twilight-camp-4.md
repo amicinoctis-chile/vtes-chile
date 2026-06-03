@@ -14,4 +14,5 @@ organizer: "Rolando Nuñez"
 registrationUrl: "https://archon.vekn.net/tournament/61364ccb-9271-4416-b172-e24ad5b0a0ae/display.html"
 resultsUrl: "https://archon.vekn.net/tournament/61364ccb-9271-4416-b172-e24ad5b0a0ae/display.html"
 img: "2026-06-27-road-to-the-twilight-camp-4.jpg"
+tags: ["Standard", "Proxies Allowed", "Single Deck"]
 ---

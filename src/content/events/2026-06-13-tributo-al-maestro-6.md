@@ -1,5 +1,5 @@
 ---
-title: "Tributo al Maestro 5"
+title: "Tributo al Maestro 6"
 description: "Sexta fecha del Circuito Tributo al Maestro"
 startDate: "2026-06-13"
 startTime: "10:30"
@@ -15,6 +15,7 @@ organizer: "Magicsur"
 registrationUrl: "https://archon.vekn.net/tournament/bb538cac-4f6b-4c85-917f-be7bd5e60dda/display.html"
 resultsUrl: "https://archon.vekn.net/tournament/bb538cac-4f6b-4c85-917f-be7bd5e60dda/display.html"
 img: "2026-06-13-tributo-al-maestro-6.webp"
+tags: ["V5", "Proxies Allowed", "Multideck"]
 ---
 TRIBUTO AL MAESTRO 6
 

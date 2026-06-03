@@ -15,6 +15,7 @@ organizer: "Magicsur"
 registrationUrl: "https://archon.vekn.net/tournament/6316d792-b5cb-4ddb-b81e-3aecd7e59cdf/display.html"
 resultsUrl: "https://archon.vekn.net/tournament/6316d792-b5cb-4ddb-b81e-3aecd7e59cdf/display.html"
 img: "2026-05-16-tributo-al-maestro-5.webp"
+tags: ["V5", "Proxies Allowed", "Single Deck", "Decklist required"]
 ---
 TRIBUTO AL MAESTRO 5
 
