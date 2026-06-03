@@ -72,7 +72,7 @@ const latestDecks = (await getCollection('decks', ({ data }) => !data.draft))
               <p class="mt-2 text-sm font-medium text-gold-500">
                 {formatCLP(event.data.entryFee)}
               </p>
-              {event.data.tags.length > 0 && <EventTags tags={event.data.tags} class="mt-3" />}
+              {(event.data.tags?.length ?? 0) > 0 && <EventTags tags={event.data.tags} class="mt-3" />}
             </a>
           </li>
         ))}

@@ -37,10 +37,10 @@ if (validFormats.includes(formatParam as EventFormat)) {
   allEvents = allEvents.filter(e => e.data.format === formatParam);
 }
 
-const allTags = [...new Set(allEvents.flatMap(e => e.data.tags))].sort();
+const allTags = [...new Set(allEvents.flatMap(e => e.data.tags ?? []))].sort();
 
 if (tagParam) {
-  allEvents = allEvents.filter(e => e.data.tags.includes(tagParam));
+  allEvents = allEvents.filter(e => (e.data.tags ?? []).includes(tagParam));
 }
 
 const totalPages = Math.max(1, Math.ceil(allEvents.length / PER_PAGE));
@@ -197,7 +197,7 @@ const buildTagUrl = (t: string) => {
                 ) : (
                   <p class="text-sm font-medium text-gold-500">{formatCLP(event.data.entryFee)}</p>
                 )}
-                {event.data.tags.length > 0 && <EventTags tags={event.data.tags} as="a" class="mt-1" />}
+                {(event.data.tags?.length ?? 0) > 0 && <EventTags tags={event.data.tags} as="a" class="mt-1" />}
               </article>
             </li>
           );
