@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import HeroSection from '@/components/HeroSection.astro';
 import EventTags from '@/components/ui/EventTags.astro';
-import { formatCLP, formatDateLong, formatDateMedium, isLeagueFinished } from '@/lib/format';
+import { formatCLP, formatDateLong, formatDateMedium, leagueWhen, isLeagueFinished } from '@/lib/format';
 
 // --- Data ---
 const today = new Date();
@@ -14,7 +14,7 @@ const upcomingEvents = (await getCollection('events'))
   .sort((a, b) => a.data.startDate.localeCompare(b.data.startDate))
   .slice(0, 3);
 
-const leagues = (await getCollection('leagues'))
+const leagues = (await getCollection('leagues', ({ data }) => !data.draft))
   .filter(l => !isLeagueFinished(l.data))
   .sort((a, b) => {
     if (a.data.year !== b.data.year) return a.data.year - b.data.year;
@@ -99,14 +99,16 @@ const latestDecks = (await getCollection('decks', ({ data }) => !data.draft))
                 {league.data.title}
               </p>
               <p class="mt-1 text-sm text-marfil-400 capitalize">
-                {league.data.city} · {league.data.day} {league.data.hour}
+                {league.data.city ? `${league.data.city} · ` : ''}{leagueWhen(league.data.day, league.data.hour)}
               </p>
               <p class="mt-1 text-sm text-marfil-400 capitalize">
                 {league.data.format} · Proxies: {league.data.proxyesAllowed}
               </p>
-              <p class="mt-2 text-sm font-medium text-gold-500">
-                {formatCLP(league.data.entryFee)}
-              </p>
+              {league.data.entryFee !== undefined && (
+                <p class="mt-2 text-sm font-medium text-gold-500">
+                  {formatCLP(league.data.entryFee)}
+                </p>
+              )}
             </a>
           </li>
         ))}

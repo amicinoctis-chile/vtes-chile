@@ -2,13 +2,13 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Button from '@/components/ui/Button.astro';
 import { getEntry, render } from 'astro:content';
-import { formatCLP, proxyLabel, capitalize, MONTH_NAMES } from '@/lib/format';
+import { formatCLP, proxyLabel, dayLabel, libreOr, leagueWhen, MONTH_NAMES } from '@/lib/format';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/leagues');
 
 const entry = await getEntry('leagues', slug);
-if (!entry) return new Response(null, { status: 404, statusText: 'Not Found' });
+if (!entry || entry.data.draft) return new Response(null, { status: 404, statusText: 'Not Found' });
 
 const league = entry.data;
 const { Content } = await render(entry);
@@ -31,7 +31,7 @@ const { Content } = await render(entry);
     <!-- Cabecera -->
     <header class="mb-10">
       <p class="text-xs text-blood-500 font-medium tracking-wide uppercase mb-2">
-        {capitalize(league.day)} · {league.hour} — {MONTH_NAMES[league.month]} {league.year}
+        {leagueWhen(league.day, league.hour)} — {MONTH_NAMES[league.month]} {league.year}
       </p>
       <h1 class="font-serif text-4xl lg:text-5xl font-bold text-marfil-50 leading-tight">
         {league.title}
@@ -43,11 +43,11 @@ const { Content } = await render(entry);
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5 border border-night-800 rounded-sm p-6 bg-night-900/30 mb-10">
       <div>
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Día</dt>
-        <dd class="mt-1 text-marfil-100">{capitalize(league.day)}</dd>
+        <dd class="mt-1 text-marfil-100">{dayLabel(league.day)}</dd>
       </div>
       <div>
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Horario</dt>
-        <dd class="mt-1 text-marfil-100">{league.hour}</dd>
+        <dd class="mt-1 text-marfil-100">{libreOr(league.hour)}</dd>
       </div>
       <div>
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Mes</dt>
@@ -57,14 +57,18 @@ const { Content } = await render(entry);
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Año</dt>
         <dd class="mt-1 text-marfil-100">{league.year}</dd>
       </div>
-      <div>
-        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Lugar</dt>
-        <dd class="mt-1 text-marfil-100">{league.location}</dd>
-      </div>
-      <div>
-        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Ciudad</dt>
-        <dd class="mt-1 text-marfil-100">{league.city}</dd>
-      </div>
+      {league.location && (
+        <div>
+          <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Lugar</dt>
+          <dd class="mt-1 text-marfil-100">{league.location}</dd>
+        </div>
+      )}
+      {league.city && (
+        <div>
+          <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Ciudad</dt>
+          <dd class="mt-1 text-marfil-100">{league.city}</dd>
+        </div>
+      )}
       <div>
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Formato</dt>
         <dd class="mt-1 text-marfil-100 capitalize">{league.format}</dd>
@@ -73,10 +77,12 @@ const { Content } = await render(entry);
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Rondas</dt>
         <dd class="mt-1 text-marfil-100">{league.rounds}</dd>
       </div>
-      <div>
-        <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Entrada</dt>
-        <dd class="mt-1 text-marfil-100">{formatCLP(league.entryFee)}</dd>
-      </div>
+      {league.entryFee !== undefined && (
+        <div>
+          <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Entrada</dt>
+          <dd class="mt-1 text-marfil-100">{formatCLP(league.entryFee)}</dd>
+        </div>
+      )}
       <div>
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Proxies</dt>
         <dd class="mt-1 text-marfil-100">{proxyLabel(league.proxyesAllowed)}</dd>
