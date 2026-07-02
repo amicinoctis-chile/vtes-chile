@@ -48,12 +48,12 @@ const leagues = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    hour: z.iso.time(),
-    day: z.enum(['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo']),
+    hour: z.iso.time().optional(),
+    day: z.enum(['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo', 'libre coordinación']).optional(),
     month: z.number().int().gte(1).lte(12),
     year: z.number().int().gte(2026),
-    location: z.string(),
-    city: z.string(),
+    location: z.string().optional(),
+    city: z.string().optional(),
     format: z.enum(['V5', 'standard', 'storyline', 'limited', 'casual']),
     proxyesAllowed: z.enum(['si', 'no', 'tba']),
     rounds: z.number().gte(1).default(1),
@@ -63,6 +63,7 @@ const leagues = defineCollection({
     registrationUrl: z.url().optional(),
     resultsUrl: z.url().optional(),
     finished: z.boolean().optional(),
+    draft: z.boolean().default(false),
   }),
 });
 

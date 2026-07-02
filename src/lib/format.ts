@@ -46,6 +46,20 @@ export const proxyLabel = (v: string): string =>
 export const capitalize = (s: string): string =>
   s.charAt(0).toUpperCase() + s.slice(1);
 
+/** Etiqueta para campos de liga de coordinación libre. */
+export const LIBRE_COORD = 'Libre coordinación';
+
+/** Valor del campo o 'Libre coordinación' si está ausente. */
+export const libreOr = (v: string | undefined): string => v ?? LIBRE_COORD;
+
+/** Día de liga capitalizado, o 'Libre coordinación' si no hay. */
+export const dayLabel = (day: string | undefined): string =>
+  day ? capitalize(day) : LIBRE_COORD;
+
+/** Línea compacta "Día · Hora", colapsada a 'Libre coordinación' si faltan ambos. */
+export const leagueWhen = (day?: string, hour?: string): string =>
+  !day && !hour ? LIBRE_COORD : `${dayLabel(day)} · ${hour ?? LIBRE_COORD}`;
+
 /** Nombres de meses en español (índice 1-12). */
 export const MONTH_NAMES = [
   '', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
