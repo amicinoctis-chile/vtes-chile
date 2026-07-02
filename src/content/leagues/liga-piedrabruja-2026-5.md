@@ -12,4 +12,5 @@ proxyesAllowed: "no"
 rounds: 1
 entryFee: 2500
 organizer: "Piedrabruja"
+finished: True
 ---

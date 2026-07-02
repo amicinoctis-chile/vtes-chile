@@ -12,5 +12,5 @@ proxyesAllowed: "no"
 rounds: 1
 entryFee: 2500
 organizer: "Piedrabruja"
-resultsUrl: "https://vtes-bloodline-board.lovable.app/liga/2026-04"
+finished: True
 ---
