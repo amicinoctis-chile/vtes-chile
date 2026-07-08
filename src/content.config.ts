@@ -29,7 +29,7 @@ const events = defineCollection({
     endTime: z.iso.time(),
     location: z.string(),
     city: z.string(),
-    format: z.enum(['V5', 'standard', 'storyline', 'limited', 'casual', 'V5 - multideck']),
+    format: z.enum(['V5', 'standard', 'storyline', 'limited', 'casual', 'V5 - multideck', 'standard - multideck']),
     proxyesAllowed: z.enum(['si', 'no', 'tba']),
     rounds: z.number().gte(1),
     entryFee: z.number().nonnegative().optional(),
