@@ -5,7 +5,7 @@ import { getEntry, render } from 'astro:content';
 import DynamicImage from '@/components/ui/DynamicImage.astro';
 import JsonLd from '@/components/ui/JsonLd.astro';
 import EventTags from '@/components/ui/EventTags.astro';
-import { formatCLP, formatDateLong, formatEventSchedule, proxyLabel, isEventFinished } from '@/lib/format';
+import { formatCLP, formatDateLong, formatEventSchedule, proxyLabel, isEventFinished, currentEntryFee, formatEntryFeeTiers } from '@/lib/format';
 
 const { slug } = Astro.params;
 if (!slug) return Astro.redirect('/events');
@@ -21,6 +21,7 @@ const eventDate = new Date(event.startDate + 'T12:00:00');
 const isFuture = eventDate >= today;
 const isPast = isEventFinished(event);
 const isMultiDay = event.endDate !== event.startDate;
+const entryFee = currentEntryFee(event);
 
 
 const { Content } = await render(entry);
@@ -44,10 +45,10 @@ const { Content } = await render(entry);
       address: { '@type': 'PostalAddress', addressLocality: event.city, addressCountry: 'CL' },
     },
     organizer: { '@type': 'Organization', name: event.organizer },
-    ...(event.entryFee !== undefined && event.entryFee > 0 && {
+    ...(entryFee !== undefined && entryFee > 0 && {
       offers: {
         '@type': 'Offer',
-        price: event.entryFee,
+        price: entryFee,
         priceCurrency: 'CLP',
       },
     }),
@@ -122,7 +123,10 @@ const { Content } = await render(entry);
       <div>
         <dt class="text-xs text-marfil-500 font-medium uppercase tracking-wide">Entrada</dt>
         <dd class="mt-1 text-marfil-100">
-          {isPast ? 'Evento Finalizado' : formatCLP(event.entryFee)}
+          {isPast ? 'Evento Finalizado' : formatCLP(entryFee)}
+          {!isPast && event.entryFeeTiers && (
+            <span class="block text-xs text-marfil-400 mt-0.5">{formatEntryFeeTiers(event.entryFeeTiers)}</span>
+          )}
         </dd>
       </div>
       <div>

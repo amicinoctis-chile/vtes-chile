@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import HeroSection from '@/components/HeroSection.astro';
 import EventTags from '@/components/ui/EventTags.astro';
-import { formatCLP, formatDateLong, formatDateMedium, leagueWhen, isLeagueFinished } from '@/lib/format';
+import { formatCLP, formatDateLong, formatDateMedium, leagueWhen, isLeagueFinished, entryFeeInfo } from '@/lib/format';
 
 // --- Data ---
 const today = new Date();
@@ -54,7 +54,9 @@ const latestDecks = (await getCollection('decks', ({ data }) => !data.draft))
 
     {upcomingEvents.length > 0 ? (
       <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {upcomingEvents.map(event => (
+        {upcomingEvents.map(event => {
+          const fee = entryFeeInfo(event.data);
+          return (
           <li class="group">
             <a href={`/events/${event.id}`} class="block border border-night-800 bg-night-900/50 p-5 rounded-sm hover:border-blood-800 transition-colors">
               <time
@@ -70,12 +72,19 @@ const latestDecks = (await getCollection('decks', ({ data }) => !data.draft))
                 {event.data.city} · {event.data.format}
               </p>
               <p class="mt-2 text-sm font-medium text-gold-500">
-                {formatCLP(event.data.entryFee)}
+                {fee.strikethrough !== undefined && (
+                  <span class="text-marfil-500 line-through font-normal mr-1.5">{formatCLP(fee.strikethrough)}</span>
+                )}
+                {formatCLP(fee.current)}
+                {fee.deadline && (
+                  <span class="text-marfil-400 font-normal"> · hasta el {formatDateMedium(fee.deadline)}</span>
+                )}
               </p>
               {(event.data.tags?.length ?? 0) > 0 && <EventTags tags={event.data.tags} class="mt-3" />}
             </a>
           </li>
-        ))}
+          );
+        })}
       </ul>
     ) : (
       <p class="text-marfil-500 text-sm">No hay eventos próximos por el momento.</p>

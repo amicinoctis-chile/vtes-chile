@@ -33,6 +33,15 @@ const events = defineCollection({
     proxyesAllowed: z.enum(['si', 'no', 'tba']),
     rounds: z.number().gte(1),
     entryFee: z.number().nonnegative().optional(),
+    entryFeeTiers: z
+      .array(
+        z.object({
+          price: z.number().nonnegative(),
+          until: z.iso.date().optional(), // último día (inclusive) que aplica; omitir en el tramo final
+        }),
+      )
+      .min(1)
+      .optional(),
     organizer: z.string(),
     maxPlayers: z.number().int().positive().optional(),
     registrationUrl: z.url().optional(),

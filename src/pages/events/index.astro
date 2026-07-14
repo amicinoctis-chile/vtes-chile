@@ -5,7 +5,7 @@ import Pagination from '@/components/ui/Pagination.astro';
 import AutoSubmitFilters from '@/components/ui/AutoSubmitFilters.astro';
 import EventTags from '@/components/ui/EventTags.astro';
 import { getCollection } from 'astro:content';
-import { formatCLP, formatDateLong, proxyLabel, capitalize, isEventFinished } from '@/lib/format';
+import { formatCLP, formatDateLong, formatDateMedium, proxyLabel, capitalize, isEventFinished, entryFeeInfo } from '@/lib/format';
 
 const formatParam = Astro.url.searchParams.get('formato') ?? '';
 const tagParam = Astro.url.searchParams.get('tag') ?? '';
@@ -172,6 +172,7 @@ const buildTagUrl = (t: string) => {
       <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {events.map(event => {
           const finalizado = isEventFinished(event.data);
+          const fee = entryFeeInfo(event.data);
           return (
             <li>
               <article class="relative border border-night-800 bg-night-900/50 rounded-sm p-5 hover:border-blood-800 transition-colors flex flex-col gap-2 h-full">
@@ -195,7 +196,15 @@ const buildTagUrl = (t: string) => {
                     Evento Finalizado
                   </span>
                 ) : (
-                  <p class="text-sm font-medium text-gold-500">{formatCLP(event.data.entryFee)}</p>
+                  <p class="text-sm font-medium text-gold-500">
+                    {fee.strikethrough !== undefined && (
+                      <span class="text-marfil-500 line-through font-normal mr-1.5">{formatCLP(fee.strikethrough)}</span>
+                    )}
+                    {formatCLP(fee.current)}
+                    {fee.deadline && (
+                      <span class="text-marfil-400 font-normal"> · hasta el {formatDateMedium(fee.deadline)}</span>
+                    )}
+                  </p>
                 )}
                 {(event.data.tags?.length ?? 0) > 0 && <EventTags tags={event.data.tags} as="a" class="mt-1" />}
               </article>

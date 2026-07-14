@@ -9,6 +9,58 @@ export const formatCLP = (n: number | undefined): string =>
       ? 'Gratuito'
       : n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
 
+/** Tramo de precio de inscripción escalonado por fecha. */
+export type EntryFeeTier = { price: number; until?: string };
+
+/** Precio de inscripción vigente según la fecha.
+ *  - Con `entryFeeTiers`: el precio del primer tramo cuyo `until` esté ausente o
+ *    sea >= hoy (comparado contra el fin de ese día). Si ninguno califica, el
+ *    precio del último tramo.
+ *  - Sin tiers: `entryFee` (comportamiento simple). */
+export const currentEntryFee = (
+  data: { entryFee?: number; entryFeeTiers?: EntryFeeTier[] },
+  today: Date = new Date(),
+): number | undefined => {
+  const tiers = data.entryFeeTiers;
+  if (!tiers || tiers.length === 0) return data.entryFee;
+  for (const tier of tiers) {
+    if (tier.until === undefined) return tier.price;
+    if (new Date(tier.until + 'T23:59:59') >= today) return tier.price;
+  }
+  return tiers[tiers.length - 1]?.price;
+};
+
+/** Piezas para renderizar el fee en tarjetas: vigente, final tachado y fecha límite. */
+export const entryFeeInfo = (
+  data: { entryFee?: number; entryFeeTiers?: EntryFeeTier[] },
+  today: Date = new Date(),
+): { current: number | undefined; strikethrough?: number; deadline?: string } => {
+  const tiers = data.entryFeeTiers;
+  if (!tiers || tiers.length === 0) return { current: data.entryFee };
+  const finalPrice = tiers[tiers.length - 1]?.price;
+  for (const tier of tiers) {
+    if (tier.until === undefined || new Date(tier.until + 'T23:59:59') >= today) {
+      return {
+        current: tier.price,
+        strikethrough: tier.price !== finalPrice ? finalPrice : undefined,
+        deadline: tier.until,
+      };
+    }
+  }
+  return { current: finalPrice };
+};
+
+/** Desglose legible de tramos de precio.
+ *  Ej: "$13.000 hasta el 31 de julio de 2026 · luego $15.000". */
+export const formatEntryFeeTiers = (tiers: EntryFeeTier[]): string =>
+  tiers
+    .map(tier =>
+      tier.until === undefined
+        ? `luego ${formatCLP(tier.price)}`
+        : `${formatCLP(tier.price)} hasta el ${formatDateLong(tier.until)}`,
+    )
+    .join(' · ');
+
 /** Normaliza un string de fecha para evitar desfase de zona horaria.
  *  - Dates sin hora ("2026-04-26") → agrega T12:00:00
  *  - Datetimes a medianoche ("…T00:00:00" / "…T00:00:00Z") → reemplaza por T12:00:00
